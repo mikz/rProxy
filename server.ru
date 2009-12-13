@@ -1,5 +1,4 @@
 #!/usr/bin/env rackup -Ilib:../lib -s thin
-require "server"
-require "plugin"
+require "rproxy"
 
 run RProxy::Server.new
