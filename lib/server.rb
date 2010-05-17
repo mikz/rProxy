@@ -45,15 +45,26 @@ module RProxy
       current_user.inspect
     end
     
+    aget "/atest" do
+      status 200
+      body "test"
+    end
+    
     get "/p" do
-      must_be_authorized! "/login"
+#      must_be_authorized! "/login"
       @plugins = Plugin.all
       @current_user = current_user
       haml :proxies
     end
     
-    apost '/p/:proxy_token' do
-      decrypted = User.decrypt_url(params.delete("proxy_token"))
+    def aredirect url, status = 302
+      response.status = status
+      response.headers['Location'] = url
+      body ''
+    end
+    
+    apost /^\/p\/(.+)/ do |proxy_token| 
+      decrypted = User.decrypt_url(proxy_token)
       
       url = URI.parse((decrypted[:url])? decrypted[:url] : decrypted[:plugin].url)
       app_path = URI.parse(request.url)
@@ -66,14 +77,16 @@ module RProxy
           if header =~ /Location\:\ (.+)$/i
             url = url.merge($1)
             
-            @redirect = redirect("/p/" + current_user.encrypt_url(decrypted[:plugin].id, url))
+            @redirect = aredirect("/p/" + current_user.encrypt_url(decrypted[:plugin].id, url))
+            
           end
           
         end if headers[2] =~ /302\ Found$/
         
         if !@redirect
-          plugin = decrypted[:plugin].worker response.body, current_user, url, app_path
-          body plugin.to_s
+          plugin = decrypted[:plugin]
+          plugin.process response.body, current_user, url, app_path
+          body plugin.output
         end
       end
       
@@ -81,16 +94,18 @@ module RProxy
       HYDRA.run
     end
     
-    aget '/p/:proxy_token' do
-      decrypted = User.decrypt_url(params.delete("proxy_token"))
+    aget /^\/p\/(.+)/ do |proxy_token| 
+      decrypted = User.decrypt_url(proxy_token)
       url = URI.parse((decrypted[:url])? decrypted[:url] : decrypted[:plugin].url)
       app_path = URI.parse(request.url)
 
       request = Typhoeus::Request.new(url.to_s, :method => :get, :follow_location => true)
       request.on_complete do |response|
 
-        plugin = decrypted[:plugin].worker response.body, current_user, url, app_path
-        body plugin.to_s
+        plugin = decrypted[:plugin]
+        DEBUG {%w{decrypted decrypted[:plugin]}}
+        plugin.process response.body, current_user, url, app_path
+        body plugin.output
       end
       
       HYDRA.queue request

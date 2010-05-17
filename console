@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-/usr/bin/env irb -Ilib:../lib
+/usr/bin/env irb -Ilib:../lib -rlib/plugin

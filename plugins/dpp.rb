@@ -1,4 +1,6 @@
 class Plugin::Dpp < RProxy::Plugin
+  include Worker
+  
   class << self
     def name
       "Dpp.cz IDOS"

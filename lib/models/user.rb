@@ -1,10 +1,12 @@
-class User < Sequel::Model
+class User < Sequel::Model(:users)
+
   PUBLIC_KEY = OpenSSL::PKey::RSA.new(File.read("certs/public.pem"))
-  PIVATE_KEY = OpenSSL::PKey::RSA.new(File.read("certs/private.pem"))
+  PRIVATE_KEY = OpenSSL::PKey::RSA.new(File.read("certs/private.pem"))
   PROXY_KEY_LENGTH = 32
   DELIMITER = "--"
   attr_accessor :password
   
+    
   def before_save
     STDERR << %{
       before_save
@@ -14,8 +16,18 @@ class User < Sequel::Model
   end
   
   class << self
+    def find *args
+      if(args.length == 1 && args.first.to_i == args.first.to_i)
+        self[args.first]
+      else
+        super
+      end
+    end
+    
     def decrypt_url(string)
-      string = PIVATE_KEY.private_decrypt(Base32.decode string)
+#      string = PRIVATE_KEY_KEY.private_decrypt(Base32.decode string)
+      DEBUG {%w{string [string].pack("H*")}}
+      string = PRIVATE_KEY.private_decrypt([string].pack("H*"))
       parts = string.split(DELIMITER)
       if parts.shift.blank?
         id = parts.shift.to_i
@@ -30,7 +42,10 @@ class User < Sequel::Model
     end
 
     def encrypt_url(string)
-      Base32.encode(PUBLIC_KEY.public_encrypt(string))
+#      CGI.escape(Base64.encode64(PUBLIC_KEY.public_encrypt(string)))
+#      Base32.encode(PUBLIC_KEY.public_encrypt(string))
+      DEBUG {%w{string string.unpack('H*')}}
+      PUBLIC_KEY.public_encrypt(string).unpack("H*").join
     end
     
     # Encrypts data using a given salt.
@@ -60,7 +75,7 @@ class User < Sequel::Model
     
     @key ||= EzCrypto::Key.with_password self.proxy_key, salt
     url = "#{DELIMITER}#{self.id}#{DELIMITER}#{@key.encrypt(url)}"
-    
+    DEBUG {%w{url}}
     self.class.encrypt_url(url)
   end
 
@@ -74,7 +89,7 @@ class User < Sequel::Model
       line = line.split("=")
       data[line.first] = line.last
     } unless match[4].blank?
-    data = {:user => self, :user_id => self.id, :plugin_id => match[1], :plugin => RProxy::Plugin[match[1].to_i], :method => match[2], :url => match[3], :data => data }
+    data = {:user => self, :user_id => self.id, :plugin_id => match[1], :plugin => RProxy::Plugin.with_class(match[1].to_i), :method => match[2], :url => match[3], :data => data }
   end
   
   def authenticated?(password)
