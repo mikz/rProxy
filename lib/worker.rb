@@ -1,11 +1,8 @@
+require "xml/processor"
 class RProxy::Plugin
   module Worker
-    
-    def self.included(base)
-      DEBUG {%w{base}}
-    end
-    attr_accessor :request, :response, :plugin
-    attr_reader :document
+    attr_accessor :request, :response
+    attr_reader :document, :user
     INVALID_LINKS = ["http://","https://","javascript:","mailto:","#"]
     INVALID_LINK = /^(((http|https)\:\/\/)|((javascript|mailto)\:)|\#)/i
     PARSER_OPTIONS = Nokogiri::XML::ParseOptions::DEFAULT_XML | Nokogiri::XML::ParseOptions::STRICT
@@ -26,11 +23,13 @@ class RProxy::Plugin
       @user = user
       @url = base_url
       @app_path = app_path
-      @plugin = plugin
-
+      #@document.instance_variable_set "@format", format
+      
       add_base_tag
       replace_links
+      
 
+      process_xml if self.class.respond_to?(:xml)
     end
 
 
@@ -39,7 +38,16 @@ class RProxy::Plugin
       @document.serialize
     end
 
+
+
     private
+    
+    def process_xml
+      processor = XMLProcessor.new self.class.xml, self.class.rng_schema do |processor|
+        processor.process! @document
+      end
+    end
+
     def format
       nil || @format
     end
@@ -55,9 +63,9 @@ class RProxy::Plugin
       @document.xpath('//xmlns:a[@href] | //xmlns:form[@action]', "xmlns" => @document.namespaces['xmlns']).each do |node|
         case node.name
           when "a"
-            node['href'] = @app_path.merge("/p/" + @user.encrypt_url(@plugin.id, @url.merge(node['href']))).to_s unless node['href'] =~ INVALID_LINK
+            node['href'] = @app_path.merge("/p/" + @user.encrypt_url(self.id, @url.merge(node['href']))).to_s unless node['href'] =~ INVALID_LINK
           when "form"
-            node['action'] = @app_path.merge("/p/" + @user.encrypt_url(@plugin.id, @url.merge(node['action']), node['method'] || "GET")).to_s
+            node['action'] = @app_path.merge("/p/" + @user.encrypt_url(self.id, @url.merge(node['action']), node['method'] || "GET")).to_s
         end
       end
     end

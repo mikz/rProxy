@@ -2,22 +2,32 @@ require 'sinatra/async'
 require 'typhoeus'
 require 'uri'
 
+require "helpers"
+
 require 'sinatra_more'
 SinatraMore::WardenPlugin::PasswordStrategy.user_class = User
-
-
-
 
 module RProxy
   class Server < Sinatra::Base
     register Sinatra::Async
     register SinatraMore::WardenPlugin
     
+    extend SinatraHelpers
     enable :show_exceptions
     enable :sessions
     set :haml, {:format => :xhtml}
     
-    HYDRA = Typhoeus::Hydra.new
+    TYPHOEUS_OPTIONS = {
+      :follow_location => true,
+      :timeout => 10000, # 10 seconds
+      :cache_timeout => 15*60 # 15 minutes
+      
+    }
+    HYDRA_OPTIONS = {
+      :max_concurency => 50
+    }
+    
+    HYDRA = init_hydra HYDRA_OPTIONS
     
     get '/login/?' do
       haml :login
@@ -57,11 +67,7 @@ module RProxy
       haml :proxies
     end
     
-    def aredirect url, status = 302
-      response.status = status
-      response.headers['Location'] = url
-      body ''
-    end
+
     
     apost /^\/p\/(.+)/ do |proxy_token| 
       decrypted = User.decrypt_url(proxy_token)
@@ -69,7 +75,7 @@ module RProxy
       url = URI.parse((decrypted[:url])? decrypted[:url] : decrypted[:plugin].url)
       app_path = URI.parse(request.url)
 
-      request = Typhoeus::Request.new(url.to_s, :method => :post, :params => params, :follow_location => true)
+      request = Typhoeus::Request.new(url.to_s, TYPHOEUS_OPTIONS.merge(:method => :post, :params => params))
       request.on_complete do |response|
         
         headers = response.headers.split("\r\n")
@@ -99,11 +105,11 @@ module RProxy
       url = URI.parse((decrypted[:url])? decrypted[:url] : decrypted[:plugin].url)
       app_path = URI.parse(request.url)
 
-      request = Typhoeus::Request.new(url.to_s, :method => :get, :follow_location => true)
+      request = Typhoeus::Request.new(url.to_s, TYPHOEUS_OPTIONS.merge(:method => :get))
       request.on_complete do |response|
 
         plugin = decrypted[:plugin]
-        DEBUG {%w{decrypted decrypted[:plugin]}}
+
         plugin.process response.body, current_user, url, app_path
         body plugin.output
       end

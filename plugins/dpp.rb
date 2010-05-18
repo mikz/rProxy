@@ -8,6 +8,13 @@ class Plugin::Dpp < RProxy::Plugin
     def url
       "http://idos.dpp.cz/idos/"
     end
+    
+    def xml
+      File.open File.join(File.dirname(__FILE__), "dpp", "dpp.xml")
+    end
+    def rng_schema
+      File.open File.join(File.dirname(__FILE__), "dpp", "schema.rng")
+    end
   end
 end
 

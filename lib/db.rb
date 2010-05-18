@@ -18,7 +18,10 @@ migration "create users table" do
   end
 end
 
-require "lib/models/user"
+Dir["lib/models/*.rb"].each do |model|
+  require model
+end
+
 
 migration "create admin user" do
   unless User.find(:admin)
@@ -38,5 +41,16 @@ migration "create plugins table" do
     varchar :name
     varchar :url
     boolean :active, :null => false, :default => true
+  end
+end
+
+migration "create configs table" do
+  database.create_table :configs do
+    text :value
+    varchar :key, :null => false
+    primary_key [:user_id, :plugin_id, :key]
+    foreign_key :user_id, {:table => :users, :on_delete => :cascade}
+    foreign_key :plugin_id, {:table => :plugins, :on_delete => :cascade}
+    
   end
 end

@@ -8,58 +8,13 @@ class User < Sequel::Model(:users)
   
     
   def before_save
-    STDERR << %{
-      before_save
-    }
     encrypt_password
     gen_proxy_key
   end
   
-  class << self
-    def find *args
-      if(args.length == 1 && args.first.to_i == args.first.to_i)
-        self[args.first]
-      else
-        super
-      end
-    end
-    
-    def decrypt_url(string)
-#      string = PRIVATE_KEY_KEY.private_decrypt(Base32.decode string)
-      DEBUG {%w{string [string].pack("H*")}}
-      string = PRIVATE_KEY.private_decrypt([string].pack("H*"))
-      parts = string.split(DELIMITER)
-      if parts.shift.blank?
-        id = parts.shift.to_i
-        string = parts.join(DELIMITER)
-        STDERR << %{
-          ID, STR : #{[id, string].inspect}
-        }
-        return User[id].decrypt_url string
-      else
-        raise "Error! (Bad url)"
-      end
-    end
-
-    def encrypt_url(string)
-#      CGI.escape(Base64.encode64(PUBLIC_KEY.public_encrypt(string)))
-#      Base32.encode(PUBLIC_KEY.public_encrypt(string))
-      DEBUG {%w{string string.unpack('H*')}}
-      PUBLIC_KEY.public_encrypt(string).unpack("H*").join
-    end
-    
-    # Encrypts data using a given salt.
-    # Uses SHA256 for encryption.
-    def encrypt(data, salt)
-      Digest::SHA256.hexdigest([salt, data].join DELIMITER)
-    end
-    
-    def authenticate(login, password)
-      user = self.find(:login => login.mb_chars.downcase.to_s)
-      user && user.authenticated?(password) ? user : false
-    end
+  def get_config plugin, key
+    Configuration.find(:plugin_id => plugin.id, :user_id => self.id, :key => key)
   end
-  
   # Encrypts data using instance salt.
   def encrypt(data)
     self.class.encrypt(data, salt)
@@ -75,7 +30,6 @@ class User < Sequel::Model(:users)
     
     @key ||= EzCrypto::Key.with_password self.proxy_key, salt
     url = "#{DELIMITER}#{self.id}#{DELIMITER}#{@key.encrypt(url)}"
-    DEBUG {%w{url}}
     self.class.encrypt_url(url)
   end
 
@@ -99,7 +53,49 @@ class User < Sequel::Model(:users)
   def proxy_key
     super
   end
-      
+  class << self
+    def find *args
+      if(args.length == 1 && args.first.is_a?(Fixnum))
+        self[args.first]
+      else
+        super
+      end
+    end
+    
+    def decrypt_url(string)
+#      string = PRIVATE_KEY_KEY.private_decrypt(Base32.decode string)
+      string = PRIVATE_KEY.private_decrypt([string].pack("H*"))
+      parts = string.split(DELIMITER)
+      if parts.shift.blank?
+        id = parts.shift.to_i
+        string = parts.join(DELIMITER)
+        STDERR << %{
+          ID, STR : #{[id, string].inspect}
+        }
+        return User[id].decrypt_url string
+      else
+        raise "Error! (Bad url)"
+      end
+    end
+
+    def encrypt_url(string)
+#      CGI.escape(Base64.encode64(PUBLIC_KEY.public_encrypt(string)))
+#      Base32.encode(PUBLIC_KEY.public_encrypt(string))
+      PUBLIC_KEY.public_encrypt(string).unpack("H*").join
+    end
+    
+    # Encrypts data using a given salt.
+    # Uses SHA256 for encryption.
+    def encrypt(data, salt)
+      Digest::SHA256.hexdigest([salt, data].join DELIMITER)
+    end
+    
+    def authenticate(login, password)
+      user = self.find(:login => login.mb_chars.downcase.to_s)
+      user && user.authenticated?(password) ? user : false
+    end
+  end
+  
   protected
   # Encrypts password and generates salt.
   def encrypt_password
