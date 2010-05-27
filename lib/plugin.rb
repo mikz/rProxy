@@ -9,7 +9,7 @@ require "ruby-debug"
 
 require "sinatra"
 
-require "debugging"
+require "lib/debugging"
 
 require "lib/db"
 

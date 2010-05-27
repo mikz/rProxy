@@ -1,4 +1,5 @@
-require "xml/processor"
+require "lib/xml/processor"
+
 class RProxy::Plugin
   module Worker
     attr_accessor :request, :response

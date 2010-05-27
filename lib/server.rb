@@ -2,7 +2,7 @@ require 'sinatra/async'
 require 'typhoeus'
 require 'uri'
 
-require "helpers"
+require "lib/helpers"
 
 require 'sinatra_more'
 SinatraMore::WardenPlugin::PasswordStrategy.user_class = User
@@ -35,7 +35,7 @@ module RProxy
     
     post '/login/?' do
       authenticate_user!
-      redirect "/test"
+      redirect "/p"
     end
 
     post '/unauthenticated/?' do
@@ -61,7 +61,7 @@ module RProxy
     end
     
     get "/p" do
-#      must_be_authorized! "/login"
+      must_be_authorized! "/login"
       @plugins = Plugin.all
       @current_user = current_user
       haml :proxies
@@ -70,6 +70,7 @@ module RProxy
 
     
     apost /^\/p\/(.+)/ do |proxy_token| 
+      must_be_authorized! "/login"
       decrypted = User.decrypt_url(proxy_token)
       
       url = URI.parse((decrypted[:url])? decrypted[:url] : decrypted[:plugin].url)
@@ -100,7 +101,8 @@ module RProxy
       HYDRA.run
     end
     
-    aget /^\/p\/(.+)/ do |proxy_token| 
+    aget /^\/p\/(.+)/ do |proxy_token|
+      must_be_authorized! "/login"
       decrypted = User.decrypt_url(proxy_token)
       url = URI.parse((decrypted[:url])? decrypted[:url] : decrypted[:plugin].url)
       app_path = URI.parse(request.url)
@@ -119,5 +121,7 @@ module RProxy
     end
   end
 end
+
+HYDRA = RProxy::Server::HYDRA
 
 Warden::Manager.serialize_from_session { |id|  id.nil? ? nil : SinatraMore::WardenPlugin::PasswordStrategy.user_class[id] }

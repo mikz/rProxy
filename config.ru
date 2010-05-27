@@ -1,5 +1,4 @@
-#!/usr/bin/env rackup -Ilib:../lib -s thin
+#!/usr/bin/env rackup -Ilib:../lib
 
 require "rproxy"
-
-run RProxy::Server.new
+RProxy::Server.run!(:port => 9090)

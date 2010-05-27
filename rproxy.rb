@@ -1,4 +1,6 @@
 require 'rubygems'
+require "bundler"
+
 require 'async-rack'
 
 require "lib/debugging"
