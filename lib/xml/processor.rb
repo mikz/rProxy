@@ -24,14 +24,23 @@ class XMLProcessor
   end
 
   
-  def process! document
-    @document = document
+  def process! document, nodes = nil, &callback
+    @document ||= document
     actions = []
-    @xml.root.xpath("*").each do |action|
+    nodes ||= @xml.root.xpath("*")
+    nodes.each do |action|
       actions << Action.new_for(action, document) do |a|
-        a.process!
+        a.process_callback!
       end
     end
+    last = nil
+    actions.reverse.each do |a|
+      DEBUG {%w{a.class last.class}}
+      a.callback = last if last
+      last = a
+    end
+    actions.first.process!
+    callback[self] if callback
   end
     
   def []= var, val
@@ -57,39 +66,74 @@ class XMLProcessor
   
   class Action
     PREFIX = "XMLProcessor::Action::"
+    attr_writer :callback
     
-    def initialize node, document, binding
+    def initialize node, document, init = nil, &block
       @document = document
       @node = node
-      @binding = binding
+      @block = block
+      @init = init
+      @binding = block.binding
       self
     end
     
     def []= var, val
-      (eval "self", @binding)[var] = val
+      processor[var] = val
     end
     def [] var
-      (eval "self", @binding)[var]
+      processor[var]
     end
     
     def plugin
       @plugin ||= eval  "plugin", @binding
     end
-     
+    
+    def process_block!
+      if @block
+        block = @block
+        @block = nil
+        block[self]
+      end
+    end
     def process!
+      process_init!
+      process_nodes!
+      process_block!
+    end
+    def process_init!
+      if @init
+        init = @init
+        @init = nil
+        init[self]
+      end
+    end
+    def process_nodes!
       @node.xpath("*").each do |node|
         @element.send node.name, node, self
       end if @element
     end
+    def process_callback!
+      if @callback
+        callback = @callback
+        @callback = callback
+        callback.process!
+      end
+    end
     
     def element_from nodeset, type = nil
-      type = (type)? type.to_sym : ((nodeset.length > 1)? :set : :node)
+      return nil if nodeset.nil?
+      case nodeset
+      when Nokogiri::XML::Element, Nokogiri::XML::Node
+        type = :node
+      when Nokogiri::XML::NodeSet
+        type = (type)? type.to_sym : ((nodeset.length > 1)? :set : :node)
+      end
       case type
       when :set
         XMLProcessor::Element::Set.new nodeset
       when :node
         XMLProcessor::Element::Node.new nodeset.first
-      end unless nodeset.nil? || nodeset.empty?
+      end
     end
     
     class << self
@@ -102,17 +146,23 @@ class XMLProcessor
         find_class_for(element).new(element, document, &block)
       end
     end
+    private
+    def processor
+      @processor ||= (eval "self", @binding)
+    end
   end
   class Element
     CLONE_METHODS = {:shallow => 0, :deep => 1}
     CLONE_DEFAULT = :deep
     class Node
       attr_reader :node
+      attr_accessor :document
     
       def initialize node
         @node = node
       end
       
+    
       def clone method, action
         original = @node
         @node = @node.dup(clone_method(method))
@@ -183,17 +233,21 @@ class XMLProcessor
         @node = @nodeset = node
       end
       def insert method, action
-        doc = @node.document
+        doc = self.document || @node.document
         method.xpath("*").each do |node|
           selectors = node.attributes.map{|name,attr| attr.value }
           elem = doc.search(*selectors, doc.namespaces).first
           case node.name.to_sym
           when :before
             @nodeset.each do |node|
+              
               elem.add_previous_sibling(node)
             end
           when :after
             @nodeset.reverse.each do |node|
+              
+                eq = node.document == elem.document
+                DEBUG {%w{node eq elem }}
               elem.add_next_sibling(node)
             end
           else

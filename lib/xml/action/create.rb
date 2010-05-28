@@ -1,6 +1,6 @@
 class XMLProcessor::Action::Create < XMLProcessor::Action
   def initialize node, document, &block
-    super(node, document, block.binding)
+    super
 #    format = @document.instance_variable_get "@format"
     case node.attribute("from").value.to_sym
     when :CDATA
@@ -13,8 +13,6 @@ class XMLProcessor::Action::Create < XMLProcessor::Action
     
     type = node.attribute("type")
     @element = element_from(nodeset, (type)? type.value : nil)
-    
-    block[self]
 
     self
   end

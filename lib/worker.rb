@@ -43,8 +43,8 @@ class RProxy::Plugin
 
     private
     
-    def process_xml
-      processor = XMLProcessor.new self.class.xml, self.class.rng_schema do |processor|
+    def process_xml xml = nil, schema = nil
+      processor = XMLProcessor.new( xml || self.class.xml, schema || self.class.rng_schema) do |processor|
         processor.process! @document
       end
     end
@@ -61,6 +61,7 @@ class RProxy::Plugin
       end
     end
     def replace_links
+      DEBUG {%w{@document.namespaces}}
       @document.xpath('//xmlns:a[@href] | //xmlns:form[@action]', "xmlns" => @document.namespaces['xmlns']).each do |node|
         case node.name
           when "a"

@@ -1,12 +1,12 @@
 class XMLProcessor::Action::Load < XMLProcessor::Action
   def initialize node, document, &block
-    super(node, document, block.binding)
     
     variable = node.attribute("from").value
-    
-    @element = self[variable]
-    
-    block[self]
+    init = Proc.new {
+      @element = self[variable]
+      @element.document = document
+    }
+    super node, document, init, &block
 
     self
   end

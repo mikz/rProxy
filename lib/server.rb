@@ -19,7 +19,8 @@ module RProxy
     
     TYPHOEUS_OPTIONS = {
       :follow_location => true,
-      :timeout => 10000, # 10 seconds
+      :max_redirects => 5,
+#      :timeout => 60*100, # 60 seconds
       :cache_timeout => 15*60 # 15 minutes
       
     }
