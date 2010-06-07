@@ -17,7 +17,15 @@ module Plugin
 end
 
 module RProxy
-  class Plugin < Sequel::Model(:plugins)
+  class Plugin
+    include DataMapper::Resource
+
+    property :id, Serial, :key => true
+    property :class_name, String
+    property :name, String
+    property :url, String
+    property :active, Boolean, :required => true, :default => false
+
     TOKEN_DELIM = "."
     def url_for_user user
       user.encrypt_url self.id, self.url
@@ -39,9 +47,9 @@ module RProxy
     
     class << self
       def with_class id
-        record = self[id]
-        klass = record.class_name.split('::').reduce(Object){|cls, c| cls.const_get(c) }
-        klass[id]
+        record = self.get id
+        klass = record.class_name.constantize
+        klass.get id
       end
     end
   end

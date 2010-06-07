@@ -29,8 +29,7 @@ class RProxy::Plugin
       add_base_tag
       replace_links
       
-
-      process_xml if self.class.respond_to?(:xml)
+      process_xml if self.respond_to?(:xml)
     end
 
 
@@ -43,8 +42,8 @@ class RProxy::Plugin
 
     private
     
-    def process_xml xml = nil, schema = nil
-      processor = XMLProcessor.new( xml || self.class.xml, schema || self.class.rng_schema) do |processor|
+    def process_xml xml = self.xml, rng_schema = self.rng_schema
+      processor = XMLProcessor.new( xml, rng_schema) do |processor|
         processor.process! @document
       end
     end
@@ -61,7 +60,6 @@ class RProxy::Plugin
       end
     end
     def replace_links
-      DEBUG {%w{@document.namespaces}}
       @document.xpath('//xmlns:a[@href] | //xmlns:form[@action]', "xmlns" => @document.namespaces['xmlns']).each do |node|
         case node.name
           when "a"

@@ -1,10 +1,10 @@
-class User::Config
+class User::Data
   include DataMapper::Resource
   
   property :name , String, :key => true, :required => true
   property :user_login, String, :key => true, :required => true
   property :plugin_id, Integer, :key => true, :required => true
-  property :value, String
+  property :value, Text
   
   belongs_to :user, :model => "User"
   belongs_to :plugin, :model => "RProxy::Plugin"
@@ -15,8 +15,8 @@ class User::Config
     (self.key) ? self.key.join(",") : nil
   end
   
-  def self.for(plugin, key = nil)
+  def self.for(plugin, name)
     result = all(:plugin.eql => plugin)
-    result.all(:key.eql => key) unless key.blank?
+    result.first(:name.eql => name)
   end
 end

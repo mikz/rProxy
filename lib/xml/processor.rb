@@ -1,5 +1,3 @@
-require "active_support/inflector"
-
 class XMLProcessor
   class InvalidXML < Exception
     def initialize; %{XML file is invalid according to its schema.}; end
@@ -35,7 +33,6 @@ class XMLProcessor
     end
     last = nil
     actions.reverse.each do |a|
-      DEBUG {%w{a.class last.class}}
       a.callback = last if last
       last = a
     end
@@ -183,11 +180,9 @@ class XMLProcessor
       
       def insert method, action
         doc = @node.document
-        DEBUG {%w{method @node}}
         method.xpath("*").each do |node|
           selectors = node.attributes.map{|name,attr| attr.value }
           elem = doc.search(*selectors, doc.namespaces).first
-          DEBUG {%w{selectors doc.namespaces elem}}
           case node.name.to_sym
           when :before
             elem.add_previous_sibling(@node)
@@ -245,9 +240,7 @@ class XMLProcessor
             end
           when :after
             @nodeset.reverse.each do |node|
-              
                 eq = node.document == elem.document
-                DEBUG {%w{node eq elem }}
               elem.add_next_sibling(node)
             end
           else

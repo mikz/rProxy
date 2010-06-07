@@ -1,0 +1,26 @@
+%form{:action => action, :method => :post}
+  %fieldset
+    %legend
+    %dl
+      %dt
+        %label{:for => "data_plugin_id"}
+          Plugin
+      %dd
+        %select{:id => "data_plugin_id", :name => "data[plugin_id]"}
+          %option
+          - @plugins.each do |plugin|
+            %option{:value => plugin.id, :selected => plugin == @data.plugin}
+              = h plugin[:name]
+      %dt
+        %label{:for => "data_name"}
+          klíč:
+      %dd
+        %input{:type => :text, :id => "data_name", :value => @data[:name], :name => "data[name]"}
+      %dt
+        %label{:for => "data_value"}
+          hodnota:
+      %dd
+        %textarea{:id => "data_value", :name => "data[value]"}
+          = h @data[:value]
+    %button{:type => :submit}
+      Uložit

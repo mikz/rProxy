@@ -1,19 +1,33 @@
-class User < Sequel::Model(:users)
+require "openssl"
 
+class User
+  include DataMapper::Resource
+  
+  property :login, String, :key => true, :required => true
+  property :password_hash, String, :length => 256
+  property :salt, String, :length => 256
+  property :proxy_key, String, :length => 256
+  property :email, String, :required => true, :unique => true
+  property :admin, Boolean, :required => true, :default => false
+  
+  has n, :data, :model => "User::Data"
+  has n, :configs, :model => "User::Config"
+  
   PUBLIC_KEY = OpenSSL::PKey::RSA.new(File.read("certs/public.pem"))
   PRIVATE_KEY = OpenSSL::PKey::RSA.new(File.read("certs/private.pem"))
   PROXY_KEY_LENGTH = 32
   DELIMITER = "--"
   attr_accessor :password
   
-    
-  def before_save
-    encrypt_password
-    gen_proxy_key
+  before :save, :encrypt_password
+  before :save, :gen_proxy_key
+  
+  def id
+    self.key.first
   end
   
-  def get_config plugin, key
-    Configuration.find(:plugin_id => plugin.id, :user_id => self.id, :key => key)
+  def get_config plugin, name
+    self.configs.first(:plugin.eql => plugin, :name.eql => name)
   end
   # Encrypts data using instance salt.
   def encrypt(data)
@@ -49,16 +63,13 @@ class User < Sequel::Model(:users)
   def authenticated?(password)
     self.password_hash == encrypt(password)
   end
-  
-  def proxy_key
-    super
-  end
+
   class << self
     def find *args
-      if(args.length == 1 && args.first.is_a?(Fixnum))
-        self[args.first]
+      if args.length == 1
+        get *args
       else
-        super
+        find *args
       end
     end
     
@@ -91,7 +102,7 @@ class User < Sequel::Model(:users)
     end
     
     def authenticate(login, password)
-      user = self.find(:login => login.mb_chars.downcase.to_s)
+      user = self.get(login.mb_chars.downcase.to_s)
       user && user.authenticated?(password) ? user : false
     end
   end

@@ -8,4 +8,7 @@
     -if @notice
       .notice
         = @notice
+    -if flash[:notice]
+      .flash.notice
+        = flash[:notice]
     = yield

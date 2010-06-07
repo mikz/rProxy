@@ -1,0 +1,27 @@
+%table
+  %thead
+    %tr
+      %td
+        plugin
+      %td
+        klíč
+      %td
+        hodnota
+      %td
+        %a{:href => "/user/config/new"}
+          přidat
+  %tbody
+    - @configs.each do |c|
+      %tr
+        %td
+          %a{:href => "/plugins/#{c.plugin.id}"}
+            = c.plugin[:name]
+        %td
+          = c[:name]
+        %td
+          = c[:value]
+        %td
+          %a{:href => "/user/config/#{c.id}/edit"}
+            upravit
+          %a{:href => "/user/config/#{c.id}/destroy"}
+            smazat

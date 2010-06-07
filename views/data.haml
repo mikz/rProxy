@@ -1,0 +1,28 @@
+%table
+  %thead
+    %tr
+      %td
+        plugin
+      %td
+        klíč
+      %td
+        hodnota
+      %td
+        %a{:href => "/user/data/new"}
+          přidat
+  %tbody
+    - @data.each do |c|
+      %tr
+        %td
+          %a{:href => "/plugins/#{c.plugin.id}"}
+            = c.plugin[:name]
+        %td
+          = c[:name]
+        %td
+          = c[:value][0..100]
+        %td
+          %a{:href => "/user/data/#{c.id}/edit"}
+            upravit
+          %a{:href => "/user/data/#{c.id}/destroy"}
+            smazat
+          

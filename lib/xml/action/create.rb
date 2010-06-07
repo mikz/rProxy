@@ -18,7 +18,6 @@ class XMLProcessor::Action::Create < XMLProcessor::Action
   end
   
   def replace_tokens text
-    DEBUG {%w{plugin}}
     text.gsub(/\#\{(.*?)\}/) {
       plugin.get_token($1)
     }

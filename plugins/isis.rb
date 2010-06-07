@@ -13,7 +13,9 @@ class Plugin::Isis < RProxy::Plugin
   end
 end
 
-
-unless RProxy::Plugin.find(:name => Plugin::Isis.name)
-  RProxy::Plugin.insert :class_name => Plugin::Isis.to_s, :name => Plugin::Isis.name, :url => Plugin::Isis.url
+begin
+unless RProxy::Plugin.first(:name => Plugin::Isis.name)
+  RProxy::Plugin.create :class_name => Plugin::Isis.to_s, :name => Plugin::Isis.name, :url => Plugin::Isis.url
+end
+rescue
 end

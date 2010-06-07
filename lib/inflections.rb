@@ -1,0 +1,1 @@
+Extlib::Inflection.word "data"

@@ -2,8 +2,11 @@ require 'sinatra/async'
 require 'typhoeus'
 require 'uri'
 
+require 'rack-flash'
+
 require "lib/helpers"
 
+require "haml"
 require 'sinatra_more'
 SinatraMore::WardenPlugin::PasswordStrategy.user_class = User
 
@@ -12,10 +15,15 @@ module RProxy
     register Sinatra::Async
     register SinatraMore::WardenPlugin
     
-    extend SinatraHelpers
+    
+    use Rack::Flash
+    
+    helpers Sinatra::Partials
+    include SinatraHelpers
+    
     enable :show_exceptions
     enable :sessions
-    set :haml, {:format => :xhtml}
+    set :haml, {:format => :xhtml, :encoding => 'UTF-8'}
     
     TYPHOEUS_OPTIONS = {
       :follow_location => true,
@@ -56,14 +64,90 @@ module RProxy
       current_user.inspect
     end
     
-    aget "/atest" do
-      status 200
-      body "test"
+    get "/user_data" do
+      must_be_authorized! "/login"
+      @user_data = current_user.user_data
+      haml :user_data
     end
     
+    get "/user/:controller/?" do
+      controller = params[:controller].downcase.to_sym
+      pass unless [:configs, :data].include?(controller)
+      must_be_authorized! "/login"
+      instance_variable_set "@#{controller}".to_sym, current_user.send(controller)
+      haml controller
+    end
+    get "/user/:controller/:id/edit/?" do
+      controller = params[:controller].downcase.to_sym
+      pass unless [:config, :data].include?(controller)
+      must_be_authorized! "/login"
+      
+      @plugins = Plugin.all
+      instance_variable_set(
+        "@#{controller}".to_sym,
+        "User::#{controller.to_s.capitalize}".constantize.get(*params[:id].split(",")))
+      haml "#{controller}/edit".to_sym
+    end
+    
+    post "/user/:controller/:id/update/?" do
+      controller = params[:controller].downcase.to_sym
+      pass unless [:config, :data].include?(controller)
+      must_be_authorized! "/login"
+      
+      @plugins = Plugin.all
+      var = "User::#{controller.to_s.capitalize}".constantize.get *params[:id].split(",")
+      instance_variable_set "@#{controller}".to_sym, var
+      if var.update(params[controller])
+        flash[:notice] = "Successfully saved"
+        redirect "/user/#{controller.to_s.pluralize}"
+      else
+        haml "#{controller}/edit".to_sym
+      end
+    end
+    
+    get "/user/:controller/:id/destroy/?" do
+      controller = params[:controller].downcase.to_sym
+      pass unless [:config, :data].include?(controller)
+      must_be_authorized! "/login"
+      
+      @plugins = Plugin.all
+      var = "User::#{controller.to_s.capitalize}".constantize.get *params[:id].split(",")
+      var.destroy
+      redirect "/user/#{controller.to_s.pluralize}"
+    end
+    
+    get "/user/:controller/new/?" do
+      controller = params[:controller].downcase.to_sym
+      pass unless [:config, :data].include?(controller)
+      must_be_authorized! "/login"
+      
+      @plugins = Plugin.all
+      instance_variable_set "@#{controller}".to_sym, "User::#{controller.to_s.capitalize}".constantize.new
+      haml "#{controller}/new".to_sym
+    end
+    
+    post "/user/:controller/create/?" do
+      controller = params[:controller].downcase.to_sym
+      pass unless [:config, :data].include?(controller)
+      must_be_authorized! "/login"
+      
+      @plugins = Plugin.all
+      var = "User::#{controller.to_s.capitalize}".constantize.new params[controller]
+      var.user = current_user
+      instance_variable_set "@#{controller}".to_sym, var
+      if var.save
+        flash[:notice] = "Successfully saved"
+        redirect "/user/#{controller.to_s.pluralize}"
+      else
+        
+          DEBUG {%w{var.errors}}
+        haml "#{controller}/new".to_sym
+      end
+    end
+  
     get "/p" do
       must_be_authorized! "/login"
-      @plugins = Plugin.all
+      @plugins = RProxy::Plugin.all
       @current_user = current_user
       haml :proxies
     end

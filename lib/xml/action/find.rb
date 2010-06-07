@@ -7,7 +7,6 @@ class XMLProcessor::Action::Find < XMLProcessor::Action
     init = Proc.new {
       nodeset = document.search *selectors, document.namespaces
       @element = element_from(nodeset)
-      DEBUG {%w{selectors}}
     }
     super node, document, init, &block
     
