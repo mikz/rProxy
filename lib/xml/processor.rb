@@ -209,8 +209,9 @@ class XMLProcessor
     
       def clone method, action
         original = @node
-        action.element = @node.dup(clone_method(method))
-        action.element.namespace = original.namespace
+        element = @node.dup(clone_method(method))
+        element.namespace = original.namespace
+        action.element = element
       end
       def log method, action
         DEBUG {method.attribute("vars").value.split(" ")}
