@@ -13,7 +13,7 @@ require "lib/debugging"
 require "sinatra"
 
 
-set :env, ENV["RACK_ENV"].to_sym
+set :env, (env = ENV["RACK_ENV"])? env : 'development'
 
 configure :production do
   disable :run, :reload
