@@ -1,3 +1,5 @@
+source :gemcutter
+
 gem "nokogiri"
 gem "async-rack"
 gem "ezcrypto"
