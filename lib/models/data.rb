@@ -19,4 +19,8 @@ class User::Data
     result = all(:plugin.eql => plugin)
     result.first(:name.eql => name)
   end
+  
+  def xml?
+    self[:name] =~ /xml|schema/i
+  end
 end

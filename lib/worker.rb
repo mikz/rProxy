@@ -12,10 +12,11 @@ class RProxy::Plugin
     DEFAULT_FORMAT = FORMATS.first
 
     
-    def process thing, user, base_url, app_path, plugin = self
+    def process thing, user, base_url, app_path, plugin = self, encoding = nil
+      DEBUG {%w{format thing.encoding}}
       case format
         when :html
-          @document = Nokogiri::HTML(thing)
+          @document = Nokogiri::HTML(thing, nil, encoding)
         when :xhtml, :xml
           @document = Nokogiri::XML(thing)
         else
@@ -24,7 +25,6 @@ class RProxy::Plugin
       @user = user
       @url = base_url
       @app_path = app_path
-      #@document.instance_variable_set "@format", format
       
       add_base_tag
       replace_links
@@ -49,18 +49,32 @@ class RProxy::Plugin
     end
 
     def format
-      nil || @format
+      nil || @format || (self.class.const_defined?(:FORMAT)) ? self.class.const_get(:FORMAT) : nil
     end
+    
     def add_base_tag
       begin
       base = Nokogiri::XML::Node.new "base", @document
       base["href"] = @url.to_s
-      @document.xpath("//xmlns:head", "xmlns" => @document.namespaces['xmlns']).children.first.add_previous_sibling base
+      case format
+        when :html
+          selector = ["//head"]
+        when :xhtml, :xml, nil
+          selector = ["//xmlns:head", "xmlns" => @document.namespaces['xmlns']]
+      end
+      @document.xpath(*selector).children.first.add_previous_sibling base
       rescue
       end
     end
     def replace_links
-      @document.xpath('//xmlns:a[@href] | //xmlns:form[@action]', "xmlns" => @document.namespaces['xmlns']).each do |node|
+      case format
+        when :html
+          selector = ['//a[@href] | //form[@action]']
+        when :xhtml, :xml, nil
+          selector = ['//xmlns:a[@href] | //xmlns:form[@action]', "xmlns" => @document.namespaces['xmlns']]
+      end
+      DEBUG {%w{selector}}
+      @document.xpath(*selector).each do |node|
         case node.name
           when "a"
             node['href'] = @app_path.merge("/p/" + @user.encrypt_url(self.id, @url.merge(node['href']))).to_s unless node['href'] =~ INVALID_LINK

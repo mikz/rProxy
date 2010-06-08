@@ -1,5 +1,6 @@
 class Plugin::Dpp < RProxy::Plugin
   include Worker
+  
 
   def xml
     record = user.data.for(self, 'xml')

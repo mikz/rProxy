@@ -20,7 +20,7 @@
         %label{:for => "data_value"}
           hodnota:
       %dd
-        %textarea{:id => "data_value", :name => "data[value]"}
+        %textarea{:id => "data_value", :name => "data[value]", :class => ('xml' if @data.xml?)}
           = h @data[:value]
     %button{:type => :submit}
       Uložit

@@ -3,8 +3,8 @@ class XMLProcessor::Action::Load < XMLProcessor::Action
     
     variable = node.attribute("from").value
     init = Proc.new {
-      @element = self[variable]
-      @element.document = document
+      self.element = self[variable]
+      self.element.document = document
     }
     super node, document, init, &block
 

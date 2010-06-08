@@ -20,7 +20,7 @@
         %label{:for => "config_value"}
           hodnota:
       %dd
-        %textarea{:id => "config_value", :name => "config[value]"}
+        %textarea{:id => "config_value", :name => "config[value]", :class => ('xml' if @config.xml? )}
           = h @config[:value]
     %button{:type => :submit}
       Uložit

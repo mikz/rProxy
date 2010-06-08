@@ -19,4 +19,8 @@ class User::Config
     result = all(:plugin.eql => plugin)
     result.all(:key.eql => key) unless key.blank?
   end
+  
+  def xml?
+    self[:name] =~ /xml|schema/i
+  end
 end

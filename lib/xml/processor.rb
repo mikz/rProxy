@@ -68,6 +68,7 @@ class XMLProcessor
     def initialize node, document, init = nil, &block
       @document = document
       @node = node
+      @stack = []
       @block = block
       @init = init
       @binding = block.binding
@@ -106,8 +107,8 @@ class XMLProcessor
     end
     def process_nodes!
       @node.xpath("*").each do |node|
-        @element.send node.name, node, self
-      end if @element
+        element.send node.name, node, self
+      end if element?
     end
     def process_callback!
       if @callback
@@ -115,6 +116,24 @@ class XMLProcessor
         @callback = callback
         callback.process!
       end
+    end
+    def element
+      @stack.last
+    end
+    
+    def element= element
+      case element
+      when Nokogiri::XML::Element, Nokogiri::XML::Node, Nokogiri::XML::NodeSet
+        element = element_from(element)
+      end
+      @stack.push element
+    end
+    
+    def element?
+      @stack.length > 0
+    end
+    def back!
+      @stack.pop
     end
     
     def element_from nodeset, type = nil
@@ -129,14 +148,14 @@ class XMLProcessor
       when :set
         XMLProcessor::Element::Set.new nodeset
       when :node
-        XMLProcessor::Element::Node.new nodeset.first
+        XMLProcessor::Element::Node.new nodeset
       end
     end
     
     class << self
       def find_class_for element
-        name = PREFIX + ActiveSupport::Inflector.camelize(element.name)
-        ActiveSupport::Inflector.constantize name
+        name = PREFIX + element.name.camelize
+        name.constantize
       end
 
       def new_for element, document, &block
@@ -156,14 +175,42 @@ class XMLProcessor
       attr_accessor :document
     
       def initialize node
-        @node = node
+        case node
+        when Nokogiri::XML::Element, Nokogiri::XML::Node
+          @node = node
+        when Nokogiri::XML::NodeSet
+          @node = node.first
+        end
       end
       
+      def parent method, action
+        action.element = @node.parent
+        
+        process_children method, action
+      end
+      
+      def back method, action
+        element = action.back!
+        
+        process_children method, action
+      end
+      
+      def next method, action
+        action.element = @node.next
+        
+        process_children method, action
+      end
+      
+      def prev method, action
+        action.element = @node.previous
+        
+        process_children method, action
+      end
     
       def clone method, action
         original = @node
-        @node = @node.dup(clone_method(method))
-        @node.namespace = original.namespace
+        action.element = @node.dup(clone_method(method))
+        action.element.namespace = original.namespace
       end
       def log method, action
         DEBUG {method.attribute("vars").value.split(" ")}
@@ -188,6 +235,15 @@ class XMLProcessor
             elem.add_previous_sibling(@node)
           when :after
             elem.add_next_sibling(@node)
+          when :into
+            case node.attribute("location").value.to_sym
+            when :top
+              elem.children.first.add_previous_sibling(@node)
+            when :bottom
+              elem.children.last.add_next_sibling(@node)
+            else
+              raise NotImplementedError.new(node.attribute("location"))
+            end
           else
             raise NotImplementedError.new(node.name)
           end
@@ -222,6 +278,14 @@ class XMLProcessor
         val = (attr)? attr.value : CLONE_DEFAULT
         CLONE_METHODS[val.to_sym]
       end
+      def process_children method, action
+        children = method.xpath("*")
+        return if children.empty?
+        children.each do |child|
+          action.element.send child.name.to_sym, child, action
+        end
+        action.back!
+      end
     end
     class Set < Node
       def initialize node
@@ -254,7 +318,7 @@ class XMLProcessor
           nodeset << node.clone(clone_method(method))
           nodeset.last.namespace = node.namespace
         end
-        @nodeset = nodeset
+        action.element = nodeset
       end
     end
   end

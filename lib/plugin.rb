@@ -40,7 +40,7 @@ module RProxy
       
     end
     
-    def config key
+    def config key, user = self.user
       config = user.get_config(self, key)
       config ? config.value : nil
     end
