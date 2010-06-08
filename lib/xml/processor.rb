@@ -233,6 +233,7 @@ class XMLProcessor
           elem = doc.search(*selectors, doc.namespaces).first
           case node.name.to_sym
           when :before
+            DEBUG {%w{elem @node}}
             elem.add_previous_sibling(@node)
           when :after
             elem.add_next_sibling(@node)

@@ -1,7 +1,15 @@
 class XMLProcessor::Action::Create < XMLProcessor::Action
   def initialize node, document, &block
-    super
 #    format = @document.instance_variable_get "@format"
+    nodeset = nil
+    type = node.attribute("type")
+    
+    init = Proc.new {
+      self.element = element_from(nodeset, (type)? type.value : nil)
+    }
+    
+    super(node, document, init, &block)
+    
     case node.attribute("from").value.to_sym
     when :CDATA
         
@@ -11,8 +19,6 @@ class XMLProcessor::Action::Create < XMLProcessor::Action
       raise XMLProcessor::NotImplementedError.new(node.attribute("from").value)
     end
     
-    type = node.attribute("type")
-    @element = element_from(nodeset, (type)? type.value : nil)
 
     self
   end
