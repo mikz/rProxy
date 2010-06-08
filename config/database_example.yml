@@ -1,0 +1,17 @@
+login: &login
+  adapter: postgres
+  username: rProxy
+  password: rProxy
+  host: localhost
+
+development:
+  <<: *login
+  database: rProxy-dev
+
+test:
+  <<: *login
+  database: rProxy-test
+
+production:
+  <<: *login
+  database: rProxy

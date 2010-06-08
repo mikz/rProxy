@@ -11,7 +11,7 @@ class Plugin::Isis < RProxy::Plugin
   
   def xml
     record = user.data.for(self, 'xml')
-    record ? record.value : nil
+    record ? record.value : nil 
   end
   def rng_schema
     record = user.data.for(self, 'rng_schema')

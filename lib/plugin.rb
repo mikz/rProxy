@@ -7,8 +7,6 @@ require "sequel"
 require 'open-uri'
 require "ruby-debug"
 
-require "sinatra"
-
 require "lib/debugging"
 
 require "lib/db"
