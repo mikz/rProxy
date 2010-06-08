@@ -7,7 +7,7 @@ require 'rack-flash'
 require "lib/helpers"
 
 require "haml"
-require 'sinatra_more'
+require 'sinatra_more/warden_plugin'
 SinatraMore::WardenPlugin::PasswordStrategy.user_class = User
 
 module RProxy

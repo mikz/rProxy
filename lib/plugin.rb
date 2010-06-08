@@ -3,7 +3,6 @@ require 'digest/sha2'
 require 'ezcrypto'
 #require 'base32'
 require "openssl"
-require "sequel"
 require 'open-uri'
 require "ruby-debug"
 

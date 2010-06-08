@@ -1,3 +1,5 @@
+source :gemcutter
+
 gem "nokogiri"
 gem "async-rack"
 gem "ezcrypto"
@@ -8,7 +10,6 @@ gem "sinatra_more"
 gem "warden"
 gem "ruby-debug19"
 gem "rack-flash"
-gem "dm-core"
-gem "dm-constraints"
-gem "dm-validations"
-gem "do_postgres"
+gem "data_mapper", "1.0.0.rc3"
+gem "dm-postgres-adapter", "1.0.0.rc3"
+gem "haml"
