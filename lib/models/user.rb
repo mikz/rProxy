@@ -102,7 +102,7 @@ class User
     end
     
     def authenticate(login, password)
-      user = self.get(login.mb_chars.downcase.to_s)
+      user = self.get(login.downcase.to_s)
       user && user.authenticated?(password) ? user : false
     end
   end
