@@ -12,12 +12,10 @@ class Plugin::Isis < RProxy::Plugin
   def xml
     record = user.data.for(self, 'xml')
     record ? record.value : nil
-    File.open File.join("plugins", "isis", "isis.xml")
   end
   def rng_schema
     record = user.data.for(self, 'rng_schema')
     record ? record.value : nil
-    File.open File.join("plugins", "isis","schema.rng")
   end
   
   class << self
