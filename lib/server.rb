@@ -136,6 +136,8 @@ module RProxy
       @plugins = Plugin.all
       var = "User::#{controller.to_s.capitalize}".constantize.new params[controller]
       var.user = current_user
+      params[controller]['value'].force_encoding('UTF-8')
+      DEBUG {%w{params[controller]['value'].encoding params[controller]['value']}}
       instance_variable_set "@#{controller}".to_sym, var
       if var.save
         flash[:notice] = "Successfully saved"

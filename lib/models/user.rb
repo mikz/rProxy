@@ -1,7 +1,9 @@
 require "openssl"
+require "lib/utf8"
 
 class User
   include DataMapper::Resource
+  include UTF8Attributes
   
   property :login, String, :key => true, :required => true
   property :password_hash, String, :length => 256

@@ -15,11 +15,11 @@
       %tr
         %td
           %a{:href => "/plugins/#{c.plugin.id}"}
-            = c.plugin[:name]
+            = h c.plugin[:name]
         %td
-          = c[:name]
+          = h c[:name]
         %td
-          = c[:value]
+          = h c[:value]
         %td
           %a{:href => "/user/config/#{c.id}/edit"}
             upravit

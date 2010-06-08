@@ -1,6 +1,8 @@
 class User::Config
   include DataMapper::Resource
   
+  include UTF8Attributes
+  
   property :name , String, :key => true, :required => true
   property :user_login, String, :key => true, :required => true
   property :plugin_id, Integer, :key => true, :required => true
