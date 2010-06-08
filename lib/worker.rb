@@ -14,6 +14,7 @@ class RProxy::Plugin
     
     def process thing, user, base_url, app_path, plugin = self, encoding = nil
       DEBUG {%w{format thing.encoding}}
+      @encoding = encoding
       case format
         when :html
           @document = Nokogiri::HTML(thing, nil, encoding)
@@ -35,7 +36,9 @@ class RProxy::Plugin
 
     def output
       return nil unless @document
-      @document.serialize
+      output = @document.serialize
+      DEBUG {%w{@encoding output.encoding @document.meta_encoding}}
+      output.force_encoding(@encoding) unless @encoding.nil?
     end
 
 
