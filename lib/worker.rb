@@ -14,6 +14,7 @@ class RProxy::Plugin
     
     def process thing, user, base_url, app_path, plugin = self, encoding = nil
       DEBUG {%w{format thing.encoding}}
+      thing.force_encoding encoding if encoding
       @encoding = encoding
       case format
         when :html
@@ -36,7 +37,7 @@ class RProxy::Plugin
 
     def output
       return nil unless @document
-      output = @document.serialize
+      output = @document.serialize :encoding => (@encoding || @document.meta_encoding)
       DEBUG {%w{@encoding output.encoding @document.meta_encoding}}
       output.force_encoding(@encoding) unless @encoding.nil?
     end
