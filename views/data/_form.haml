@@ -15,12 +15,12 @@
         %label{:for => "data_name"}
           klíč:
       %dd
-        %input{:type => :text, :id => "data_name", :value => @data[:name], :name => "data[name]"}
+        %input{:type => :text, :id => "data_name", :value => @data[:name].force_encoding("UTF-8"), :name => "data[name]"}
       %dt
         %label{:for => "data_value"}
           hodnota:
       %dd
         %textarea{:id => "data_value", :name => "data[value]", :class => ('xml' if @data.xml?)}
-          = h @data[:value]
+          = h @data[:value].force_encoding("UTF-8")
     %button{:type => :submit}
       Uložit

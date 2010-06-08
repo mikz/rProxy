@@ -15,12 +15,12 @@
         %label{:for => "config_name"}
           klíč:
       %dd
-        %input{:type => :text, :id => "config_name", :value => @config[:name], :name => "config[name]"}
+        %input{:type => :text, :id => "config_name", :value => @config[:name].force_encoding("UTF-8"), :name => "config[name]"}
       %dt
         %label{:for => "config_value"}
           hodnota:
       %dd
         %textarea{:id => "config_value", :name => "config[value]", :class => ('xml' if @config.xml? )}
-          = h @config[:value]
+          = h @config[:value].force_encoding("UTF-8")
     %button{:type => :submit}
       Uložit

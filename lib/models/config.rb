@@ -4,7 +4,7 @@ class User::Config
   property :name , String, :key => true, :required => true
   property :user_login, String, :key => true, :required => true
   property :plugin_id, Integer, :key => true, :required => true
-  property :value, String
+  property :value, Text
   
   belongs_to :user, :model => "User"
   belongs_to :plugin, :model => "RProxy::Plugin"
