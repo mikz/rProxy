@@ -10,8 +10,6 @@ require "lib/debugging"
 
 APP_ROOT = File.dirname(File.dirname(__FILE__) + "..")
 
-DEBUG {%w{APP_ROOT}}
-
 module RProxy
   class Server < Sinatra::Base
     set :environment, ENV["RACK_ENV"].to_sym

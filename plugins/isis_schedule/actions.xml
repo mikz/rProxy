@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="schema.rng" type="xml"?>
+<actions
+    xmlns="urn:x-rProxy:ns:manipulation"
+    xmlns:output="urn:x-rProxy:ns:output"
+    output:method="plain"
+    output:variable="@ical">
+    <find xpath="//*[@class='mainpage']//table[1]">
+        <call method="parse_table"/>
+    </find>
+</actions>

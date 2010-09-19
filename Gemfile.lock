@@ -66,6 +66,7 @@ GEM
     rack (1.2.1)
     rack-flash (0.1.1)
       rack
+    ri_cal (0.8.7)
     ruby-debug-base19 (0.11.24)
       columnize (>= 0.3.1)
       linecache19 (>= 0.5.11)
@@ -89,6 +90,7 @@ GEM
     tilt (1.1)
     typhoeus (0.1.31)
       rack
+    tzinfo (0.3.23)
     uuidtools (2.1.1)
     warden (0.10.7)
       rack (>= 1.0.0)
@@ -105,8 +107,10 @@ DEPENDENCIES
   haml
   nokogiri
   rack-flash
+  ri_cal
   ruby-debug19
   sinatra
   sinatra_more
   typhoeus
+  tzinfo
   warden

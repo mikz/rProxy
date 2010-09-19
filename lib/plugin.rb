@@ -11,6 +11,7 @@ require "lib/debugging"
 require "lib/db"
 
 module Plugin
+  LIST = []
 end
 
 module RProxy
@@ -18,9 +19,9 @@ module RProxy
     include DataMapper::Resource
 
     property :id, Serial, :key => true
-    property :class_name, String
-    property :name, String
-    property :url, String
+    property :class_name, String, :required => true
+    property :name, String, :required => true
+    property :url, String, :length => 255, :required => true
     property :active, Boolean, :required => true, :default => false
 
     TOKEN_DELIM = "."
@@ -43,6 +44,12 @@ module RProxy
     end
     
     class << self
+      
+      def inherited(subclass)
+        super
+        ::Plugin::LIST << subclass
+      end
+      
       def with_class id
         record = self.get id
         klass = record.class_name.constantize
@@ -53,7 +60,15 @@ module RProxy
 end
 
 require "lib/worker"
+require "lib/ruby"
 
 Dir["plugins/*.rb"].each do |plugin|
   require plugin
 end
+
+Plugin::LIST.each do |plugin|
+  unless RProxy::Plugin.first(:name => plugin.name)
+    RProxy::Plugin.create :class_name => plugin.to_s, :name => plugin.name, :url => plugin.url
+  end if DB.storage_exists?(plugin.storage_name)
+end
+

@@ -27,21 +27,45 @@ class RProxy::Plugin
       @url = base_url
       @app_path = app_path
       
+      @output = {
+        :method => :serialize,
+        :variable => "@document"
+      }
+      
       add_base_tag
       replace_links
-      
-      process_xml if self.respond_to?(:xml)
+      begin
+        process_xml if self.respond_to?(:xml)
+      rescue Nokogiri::XML::SyntaxError => e
+        @error = e
+        @output = {:method => :inspect, :variable => "@error"}
+      end
     end
-
-
+    
+    def output_method= val
+      @output[:method] = val.to_sym
+    end
+    
+    def output_variable= val
+      @output[:variable] = val
+    end
+    
     def output
-      return nil unless @document
-      output = @document.serialize :encoding => (@encoding || @document.meta_encoding)
-      output.force_encoding(@encoding) unless @encoding.nil?
+      variable = self.instance_variable_get(@output[:variable])
+      DEBUG {%w{@output[:method] @output[:variable]}}
+      case @output[:method]
+      when :serialize
+        document = variable
+        output = document.serialize :encoding => (@encoding || document.meta_encoding)
+        output.force_encoding(@encoding) unless @encoding.nil?
+      when :plain
+        variable
+      when :inspect
+        variable.inspect
+      end
     end
-
-
-
+    
+    
     private
     
     def process_xml xml = self.xml, rng_schema = self.rng_schema
@@ -68,6 +92,7 @@ class RProxy::Plugin
       rescue
       end
     end
+    
     def replace_links
       case format
         when :html
