@@ -126,3 +126,8 @@ class User
   end
   
 end
+
+
+$:.unshift File.dirname(__FILE__)
+require "data"
+require "config"

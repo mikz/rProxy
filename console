@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 export RACK_ENV=$1
-/usr/bin/env irb -Ilib:../lib -rrproxy 
+/usr/bin/env irb -Ilib:../lib -I. -rrproxy 

@@ -47,7 +47,7 @@ class RProxy::Plugin
     def process_xml xml = self.xml, rng_schema = self.rng_schema
       processor = XMLProcessor.new( xml, rng_schema) do |processor|
         processor.process! @document
-      end
+      end if xml
     end
 
     def format

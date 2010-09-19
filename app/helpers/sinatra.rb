@@ -1,5 +1,5 @@
 #require "active_support/cache"
-require "lib/partials"
+
 
 module SinatraHelpers
   

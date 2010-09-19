@@ -1,0 +1,112 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    activesupport (3.0.0)
+    addressable (2.2.1)
+    archive-tar-minitar (0.5.2)
+    async-rack (0.5.0)
+      rack (~> 1.1)
+    async_sinatra (0.2.3)
+      sinatra (>= 1.0)
+    columnize (0.3.1)
+    data_mapper (1.0.2)
+      dm-aggregates (= 1.0.2)
+      dm-constraints (= 1.0.2)
+      dm-core (= 1.0.2)
+      dm-migrations (= 1.0.2)
+      dm-serializer (= 1.0.2)
+      dm-timestamps (= 1.0.2)
+      dm-transactions (= 1.0.2)
+      dm-types (= 1.0.2)
+      dm-validations (= 1.0.2)
+    data_objects (0.10.2)
+      addressable (~> 2.1)
+    dm-aggregates (1.0.2)
+      dm-core (~> 1.0.2)
+    dm-constraints (1.0.2)
+      dm-core (~> 1.0.2)
+      dm-migrations (~> 1.0.2)
+    dm-core (1.0.2)
+      addressable (~> 2.2)
+      extlib (~> 0.9.15)
+    dm-do-adapter (1.0.2)
+      data_objects (~> 0.10.2)
+      dm-core (~> 1.0.2)
+    dm-migrations (1.0.2)
+      dm-core (~> 1.0.2)
+    dm-postgres-adapter (1.0.2)
+      dm-do-adapter (~> 1.0.2)
+      do_postgres (~> 0.10.2)
+    dm-serializer (1.0.2)
+      dm-core (~> 1.0.2)
+      fastercsv (~> 1.5.3)
+      json_pure (~> 1.4)
+    dm-timestamps (1.0.2)
+      dm-core (~> 1.0.2)
+    dm-transactions (1.0.2)
+      dm-core (~> 1.0.2)
+    dm-types (1.0.2)
+      dm-core (~> 1.0.2)
+      fastercsv (~> 1.5.3)
+      json_pure (~> 1.4)
+      stringex (~> 1.1.0)
+      uuidtools (~> 2.1.1)
+    dm-validations (1.0.2)
+      dm-core (~> 1.0.2)
+    do_postgres (0.10.2)
+      data_objects (= 0.10.2)
+    extlib (0.9.15)
+    ezcrypto (0.7.2)
+    fastercsv (1.5.3)
+    haml (3.0.18)
+    json_pure (1.4.6)
+    linecache19 (0.5.11)
+      ruby_core_source (>= 0.1.4)
+    nokogiri (1.4.3.1)
+    rack (1.2.1)
+    rack-flash (0.1.1)
+      rack
+    ruby-debug-base19 (0.11.24)
+      columnize (>= 0.3.1)
+      linecache19 (>= 0.5.11)
+      ruby_core_source (>= 0.1.4)
+    ruby-debug19 (0.11.6)
+      columnize (>= 0.3.1)
+      linecache19 (>= 0.5.11)
+      ruby-debug-base19 (>= 0.11.19)
+    ruby_core_source (0.1.4)
+      archive-tar-minitar (>= 0.5.2)
+    sinatra (1.0)
+      rack (>= 1.0)
+    sinatra_more (0.3.40)
+      activesupport (>= 2.2.2)
+      bundler (>= 0.9.2)
+      sinatra (>= 0.9.2)
+      thor (>= 0.11.8)
+      tilt (>= 0.2)
+    stringex (1.1.0)
+    thor (0.14.1)
+    tilt (1.1)
+    typhoeus (0.1.31)
+      rack
+    uuidtools (2.1.1)
+    warden (0.10.7)
+      rack (>= 1.0.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  async-rack
+  async_sinatra
+  data_mapper
+  dm-postgres-adapter
+  ezcrypto
+  haml
+  nokogiri
+  rack-flash
+  ruby-debug19
+  sinatra
+  sinatra_more
+  typhoeus
+  warden

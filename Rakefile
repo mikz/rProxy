@@ -2,6 +2,8 @@
 # for example lib/tasks/capistrano.rake, and they will automatically be available to Rake.
 
 #require(File.join(File.dirname(__FILE__), 'rproxy'))
+$:.unshift File.dirname(__FILE__)
+
 require "rproxy"
 
 task :migrate do
