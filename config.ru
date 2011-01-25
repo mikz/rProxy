@@ -1,6 +1,4 @@
-#!/usr/bin/env rackup
-$:.unshift File.dirname(__FILE__)
-$:.unshift File.dirname(__FILE__)+"lib"
+# This file is used by Rack-based servers to start the application.
 
-require "rproxy"
-run RProxy::Server
+require ::File.expand_path('../config/environment',  __FILE__)
+run RProxyRails::Application
