@@ -8,7 +8,8 @@ RProxyRails::Application.configure do
 
   # Log error messages when you accidentally call methods on nil.
   config.whiny_nils = true
-
+  
+  config.logger = Logger.new STDERR
   # Show full error reports and disable caching
   config.consider_all_requests_local       = true
   config.action_view.debug_rjs             = true
@@ -22,5 +23,8 @@ RProxyRails::Application.configure do
 
   # Only use best-standards-support built into browsers
   config.action_dispatch.best_standards_support = :builtin
+#  config.action_dispatch.show_exceptions = true
+
+#  config.threadsafe!
 end
 

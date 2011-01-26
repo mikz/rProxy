@@ -1,4 +1,10 @@
 RProxyRails::Application.routes.draw do
+  devise_for :users
+  
+  get "/proxies" => "proxies#index"
+
+  mount RProxy::Server => "/p"
+  
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

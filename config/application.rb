@@ -13,8 +13,8 @@ module RProxyRails
     # -- all .rb files in that directory are automatically loaded.
 
     # Custom directories with classes and modules you want to be autoloadable.
-    # config.autoload_paths += %W(#{config.root}/extras)
-
+    config.autoload_paths += %W(#{config.root}/app/plugins)
+    
     # Only load the plugins named here, in the order given (default is alphabetical).
     # :all can be used as a placeholder for all plugins not explicitly named.
     # config.plugins = [ :exception_notification, :ssl_requirement, :all ]
@@ -38,5 +38,26 @@ module RProxyRails
 
     # Configure sensitive parameters which will be filtered from the log file.
     config.filter_parameters += [:password]
+    config.allow_concurrency = true
+    
+#    config.middleware.insert_after ::Rack::Sendfile, ::RProxy::Server
+#    config.middleware.remove Rack::Runtime
+    
+#    config.cache_store = :memory_store
+  end
+end
+
+
+RProxyRails::Application::Bootstrap.tap do |bootstrap|
+  bootstrap.initializers.reject! {|i| i.name == :initialize_cache }
+  
+  bootstrap.initializer :initialize_cache, :after => :initialize_logger do
+    unless defined?(RAILS_CACHE)
+      silence_warnings { Object.const_set "RAILS_CACHE", ActiveSupport::Cache.lookup_store(config.cache_store) }
+
+      if RAILS_CACHE.respond_to?(:middleware)
+        config.middleware.insert_before(::Rack::Runtime, RAILS_CACHE.middleware)
+      end
+    end
   end
 end

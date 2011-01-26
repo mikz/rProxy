@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar 
+  xmlns="http://relaxng.org/ns/structure/1.0"
+  xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+  xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+  datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"
+  ns="urn:x-rProxy:ns:manipulation">
+    <start>
+        <element name="actions">
+            <ref name="output_attributes"/>
+            <oneOrMore>
+                <choice>
+                    <ref name="find"/>
+                    <ref name="http"/>
+                    <ref name="load"/>
+                    <ref name="create"/>
+                </choice>
+            </oneOrMore>
+        </element>
+    </start>
+    <define name="create">
+        <element name="create">
+            <attribute name="from">
+                <choice>
+                    <value>CDATA</value>
+                </choice>
+            </attribute>
+            <optional>
+                <attribute name="format">
+                    <choice>
+                        <a:documentation>xhtml is default value format of parsed document</a:documentation>
+                        <value>xhtml</value>
+                        <value>html</value>
+                        <value>xml</value>
+                    </choice>
+                </attribute>
+            </optional>
+            <text/>
+            <ref name="methods"/>
+        </element>
+    </define>
+    <define name="selector">
+        <choice>
+            <attribute name="xpath">
+                <data type="string"/>
+            </attribute>
+            <attribute name="css">
+                <data type="string"/>
+            </attribute>            
+        </choice>
+    </define>
+    <define name="http">
+        <element name="http">
+            <attribute name="method">
+                <choice>
+                    <value>GET</value>
+                    <value>POST</value>
+                    <value>PUT</value>
+                    <value>DELETE</value>
+                </choice>
+            </attribute>
+            <attribute name="url"/>
+            <interleave>
+                <optional>
+                    <element name="fixes">
+                        <oneOrMore>
+                            <element name="amp"><empty/></element>
+                        </oneOrMore>
+                    </element>
+                </optional>
+                <optional>
+                    <element name="data">
+                        <oneOrMore>
+                            <choice>
+                                <element name="param">
+                                    <attribute name="name"/>                                
+                                    <choice>
+                                        <text/>
+                                        <empty/>
+                                    </choice>
+                                </element>
+                                <group>
+                                    <element name="key">
+                                        <text/>
+                                    </element>
+                                    <element name="value">
+                                        <text/>
+                                    </element>
+                                </group>
+                            </choice>
+                        </oneOrMore>
+                    </element>
+                    
+                </optional>
+                <optional>
+                    <element name="cache">
+                        <attribute name="timeout"/>
+                    </element>
+                </optional>
+            </interleave>
+            <ref name="find"/>
+        </element>
+    </define>
+    <define name="type">
+        <optional>
+            <attribute name="type">
+                <choice>
+                    <value>node</value>
+                    <value>set</value>
+                </choice>
+            </attribute>
+        </optional>
+    </define>
+    <define name="find">
+        <element name="find">
+            <ref name="selector"/>
+            <ref name="type"/>
+            <ref name="methods"/>
+        </element>
+    </define>
+    <define name="save">
+        <element name="save">
+            <attribute name="to"/>
+        </element>
+    </define>
+    <define name="remove">
+        <element name="remove">
+            <choice>
+                <attribute name="attribute"/>
+                <empty/>                
+            </choice>
+        </element>
+    </define>
+    <define name="clone">
+        <element name="clone">
+            <optional>
+                <attribute name="method">
+                    <choice>
+                        <value>shallow</value>
+                        <a:documentation>deep is default value by Nokogiri and application</a:documentation>
+                        <value>deep</value>
+                    </choice>
+                </attribute>
+            </optional>
+        </element>
+    </define>
+    <define name="modify">
+        <element name="modify">
+            <choice>
+                <group>
+                    <attribute name="attribute"/>
+                    <choice>
+                        <attribute name="value"/>
+                        <text/>
+                        <ref name="ruby"/>
+                    </choice>
+                </group>
+            </choice>    
+        </element>
+    </define>
+    <define name="insert">
+        <element name="insert">
+            <oneOrMore>
+                <choice>
+                    <element name="before">
+                        <ref name="selector"/>
+                    </element>
+                    <element name="after">
+                        <ref name="selector"/>
+                    </element>
+                    <element name="into">
+                        <ref name="selector"></ref>
+                        <attribute name="location">
+                            <choice>
+                                <value>top</value>
+                                <value>bottom</value>
+                            </choice>
+                        </attribute>
+                    </element>
+                </choice>
+            </oneOrMore>
+        </element>
+    </define>
+    <define name="log">
+        <element name="log">
+            <attribute name="vars"/>
+        </element>
+    </define>
+    <define name="ruby">
+        <data type="string"/>
+    </define>
+    <define name="load">
+        <element name="load">
+            <attribute name="from"/>
+            <ref name="methods"/>
+        </element>
+    </define>
+    <define name="parent">
+        <element name="parent">
+            <choice>
+                <empty/>
+                <ref name="methods"/>
+            </choice>
+        </element>
+    </define>
+    <define name="prev">
+        <element name="prev">
+            <choice>
+                <empty/>
+                <ref name="methods"/>
+            </choice>
+        </element>
+    </define>
+    <define name="next">
+        <element name="next">
+            <choice>
+                <empty/>
+                <ref name="methods"/>
+            </choice>
+        </element>
+    </define>
+    <define name="back">
+        <element name="back">
+            <choice>
+                <empty/>
+                <ref name="methods"/>
+            </choice>
+        </element>
+    </define>
+    <define name="call">
+        <element name="call">
+            <choice>
+                <group>
+                    <attribute name="method"/>
+                    <empty/>
+                </group>
+                <ref name="ruby"/>
+            </choice>
+        </element>
+    </define>
+    <define name="output_method">
+        <attribute name="method" ns="urn:x-rProxy:ns:output">
+            <choice>
+                <value>plain</value>
+                <value>serialize</value>
+            </choice>
+        </attribute>
+    </define>
+    <define name="output_attributes">
+        <choice>
+            <group>
+                <empty/>
+            </group>
+            <group>
+                <ref name="output_method"/>
+            </group>
+            <group>
+                <ref name="output_method"/>
+                <attribute name="variable" ns="urn:x-rProxy:ns:output">
+                    <data type="string"/>
+                </attribute>
+            </group>
+        </choice>
+    </define>
+    <define name="methods">
+        <oneOrMore>
+            <choice>
+                <ref name="save"/>
+                <ref name="modify"/>
+                <ref name="remove"/>
+                <ref name="clone"/>
+                <ref name="insert"/>
+                <ref name="parent"/>
+                <ref name="prev"/>
+                <ref name="next"/>
+                <ref name="back"/>
+                <ref name="log"/>
+                <ref name="call"/>
+            </choice>
+        </oneOrMore>
+    </define>
+ </grammar>

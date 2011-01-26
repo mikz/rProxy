@@ -1,31 +1,45 @@
 source 'http://rubygems.org'
+RAILS_VERSION = '~> 3'
+DM_VERSION    = '~> 1.0.0'
+RSPEC_VERSION = '~> 2.2'
 
-gem 'rails', '3.0.3'
+gem 'rails', RAILS_VERSION
 
-# Bundle edge Rails instead:
-# gem 'rails', :git => 'git://github.com/rails/rails.git'
+gem 'dm-rails'
+
+gem 'dm-postgres-adapter',  DM_VERSION
+gem 'dm-migrations',        DM_VERSION
+gem 'dm-types',             DM_VERSION
+gem 'dm-constraints',       DM_VERSION
+gem 'dm-transactions',      DM_VERSION
+gem 'dm-aggregates',        DM_VERSION
+gem 'dm-validations',       DM_VERSION
+gem 'dm-timestamps',        DM_VERSION
+gem 'dm-observer',          DM_VERSION
+gem 'dm-active_model'
+gem 'dm-devise'
+
+gem 'async-rack', :path => "lib/async-rack"
+gem 'rack-fiber_pool', :require => 'rack/fiber_pool'
+
+gem 'r_proxy', :path => "lib/r_proxy"
 
 gem 'pg'
 
-# Use unicorn as the web server
-# gem 'unicorn'
+gem 'foreigner'
+gem 'haml'
 
-# Deploy with Capistrano
-# gem 'capistrano'
+gem 'thin'
 
-# To use debugger (ruby-debug for Ruby 1.8.7+, ruby-debug19 for Ruby 1.9.2+)
-# gem 'ruby-debug'
-# gem 'ruby-debug19'
-
-# Bundle the extra gems:
-# gem 'bj'
-# gem 'nokogiri'
-# gem 'sqlite3-ruby', :require => 'sqlite3'
-# gem 'aws-s3', :require => 'aws/s3'
-
-# Bundle gems for the local environment. Make sure to
-# put test-only gems in this group so their generators
-# and rake tasks are available in development mode:
-# group :development, :test do
-#   gem 'webrat'
-# end
+group :development, :test do
+  gem 'cucumber-rails'
+  gem 'webrat'
+  gem 'factory_girl_rails', '~> 1.1.beta'
+  gem 'rspec', RSPEC_VERSION
+  gem 'rspec-rails', RSPEC_VERSION
+  gem 'shoulda-matchers'
+  gem 'awesome_print'
+  gem 'hpricot'
+  
+  gem 'ruby-debug19', :require => "ruby-debug"
+end
