@@ -2,7 +2,10 @@ RProxyRails::Application.routes.draw do
   devise_for :users
   
   get "/proxies" => "proxies#index"
-
+  
+  root :to => redirect("/proxies")
+#  match "/p/:query" => redirect("/p/?%{query}")
+  
   mount RProxy::Server => "/p"
   
   # The priority is based upon order of creation:

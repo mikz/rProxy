@@ -26,7 +26,7 @@ module RProxy::XMLProcessor::Element
           end
         else
           raise NotImplementedError.new(node.name)
-        end
+        end if elem
       end
     end
 

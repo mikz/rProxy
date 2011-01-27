@@ -3,8 +3,8 @@ require "base64"
 class Isis < Plugin::Base
   FORMAT = :html
   
-  def headers(user = self.user)
-    {"Authorization" => "Basic #{Base64.encode64("#{config('username', user)}:#{config('password', user)}")}"}
+  def options(user = self.user)
+    {:head => {'authorization' => [config('username', user), config('password', user)]}}
   end
   
   def xml

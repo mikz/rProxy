@@ -1,8 +1,10 @@
 require "uri"
 require "sinatra/async"
-require "typhoeus"
 require "ezcrypto"
 require "open3"
+require "typhoeus"
+#require "em-synchrony/em-http"
+
 module RProxy
   mattr_accessor :plugins
   @@plugins = []
@@ -19,6 +21,7 @@ module RProxy
   autoload :XMLProcessor, "r_proxy/xml_processor"
   autoload :Server, "r_proxy/server"
   autoload :Ruby, "r_proxy/ruby"
+  autoload :Request, "r_proxy/request"
   
   def self.user_model
     user_class.constantize

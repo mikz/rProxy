@@ -2,6 +2,10 @@ module RProxy
   class XMLProcessor
     autoload :Element, "r_proxy/xml_processor/element"
     autoload :Action, "r_proxy/xml_processor/action"
+    autoload :Document, "r_proxy/xml_processor/document"
+    
+    attr_reader :plugin, :document, :vars, :xml, :schema
+    delegate :[]=, :[], :to => :vars
     
     class InvalidXML < Exception
       def initialize; %{XML file is invalid according to its schema.}; end
@@ -11,25 +15,20 @@ module RProxy
       def initialize(what); %{#{what} is not implemented}; end
     end
   
-    def initialize xml, schema = nil, &block
-      check_xml! xml, schema
-    
-      @vars = {}
-      @binding = block.binding
-      yield self
+    def initialize plugin, xml, schema = nil
+      @plugin = plugin
+      @vars = ActiveSupport::HashWithIndifferentAccess.new
+      parse_xml xml, schema
+      
+      yield if block_given?
+      
       return self
     end
-  
-    def plugin
-      @plugin ||= eval "self", @binding
-    end
-
-  
+    
     def process! document, nodes = nil, &callback
-      @document ||= document
+      @document = document = Document.new(document, self)
       actions = []
     
-      plugin = self.plugin
       @xml.root.attributes.each_pair do |name, attr|
         next unless attr.namespace.prefix.to_sym == :output
         case name.to_sym
@@ -40,18 +39,11 @@ module RProxy
         end
       end
       nodes ||= @xml.root.xpath("*")
-      nodes.each do |action|
-        actions << Action.new_for(action, document) do |a|
-          a.process_callback!
-        end
+      nodes.each do |node|
+        actions << Action.new_for(self, node).process!
       end
-      last = nil
-      actions.reverse.each do |a|
-        a.callback = last if last
-        last = a
-      end
-      actions.first.process!
-      callback[self] if callback
+      
+      actions
     end
     
     def []= var, val
@@ -61,14 +53,21 @@ module RProxy
     def [] var
       @vars[var.to_sym]
     end
-  
-    def check_xml! xml, schema
+    
+    def parse_xml(xml, schema = nil)
       @xml = Nokogiri::XML(xml)
-
-      return @xml unless schema
-      @schema = Nokogiri::XML::RelaxNG(schema)
-
-      @schema.validate(@xml).each do |error|
+      if schema.present?
+        @schema = Nokogiri::XML::RelaxNG(schema) 
+        #check_xml!
+      end
+    end
+    
+    def check_xml!
+      self.class.check_xml! @xml, @schema
+    end
+    
+    def self.check_xml! xml, schema
+      schema.validate(xml).each do |error|
         raise error
       end
     end

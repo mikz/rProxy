@@ -1,13 +1,13 @@
 module RProxy
   class XMLProcessor::Action::Load < XMLProcessor::Action
-    def initialize node, document, &block
+    def initialize processor, node, &init
     
       variable = node.attribute("from").value
-      init = Proc.new {
+
+      super(processor, node) {
         self.element = self[variable]
-        self.element.document = document
+        self.element.document = document if self.element
       }
-      super node, document, init, &block
 
       self
     end

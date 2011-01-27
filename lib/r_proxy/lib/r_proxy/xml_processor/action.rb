@@ -7,42 +7,24 @@ module RProxy
       autoload :Load, "r_proxy/xml_processor/action/load"
       autoload :Return, "r_proxy/xml_processor/action/return"
       
-      attr_writer :callback
+      attr_reader :processor, :node
+      delegate :plugin, :to => :processor
+      delegate :[]=, :[], :to => :processor
+      delegate :document, :to => :processor, :prefix => true
+      delegate :document, :to => :processor_document
   
-      def initialize node, document, init = nil, &block
-        @document = document
+      def initialize xml_processor, node, &init
+        @processor = xml_processor
         @node = node
         @stack = []
-        @block = block
         @init = init
-        @binding = block.binding
+
         self
-      end
-  
-      def []= var, val
-        processor[var] = val
-      end
-    
-      def [] var
-        processor[var]
-      end
-  
-      def plugin
-        @plugin ||= eval  "plugin", @binding
-      end
-  
-      def process_block!
-        if @block
-          block = @block
-          @block = nil
-          block[self]
-        end
       end
     
       def process!
         process_init!
         process_nodes!
-        process_block!
       end
     
       def process_init!
@@ -58,15 +40,7 @@ module RProxy
           element.send node.name, node, self
         end if element?
       end
-    
-      def process_callback!
-        if @callback
-          callback = @callback
-          @callback = callback
-          callback.process!
-        end
-      end
-    
+        
       def element
         @stack.last
       end
@@ -80,7 +54,7 @@ module RProxy
       end
   
       def element?
-        @stack.length > 0 && element.length > 0
+        @stack.length > 0 && element.length > 0 if element.present?
       end
     
       def back!
@@ -97,27 +71,21 @@ module RProxy
         end
         case type
         when :set
-          XMLProcessor::Element::Set.new nodeset
+          Element::Set.new nodeset
         when :node
-          XMLProcessor::Element::Node.new nodeset
+          Element::Node.new nodeset
         end
       end
   
       class << self
-        def find_class_for element
-          name = self.to_s + "::" + element.name.camelize
+        def find_class_for node
+          name = self.to_s + "::" + node.name.camelize
           name.constantize
         end
 
-        def new_for element, document, &block
-          find_class_for(element).new(element, document, &block)
+        def new_for processor, node
+          find_class_for(node).new(processor, node)
         end
-      end
-    
-      private
-    
-      def processor
-        @processor ||= (eval "self", @binding)
       end
     
     end

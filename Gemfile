@@ -29,7 +29,10 @@ gem 'pg'
 gem 'foreigner'
 gem 'haml'
 
+gem 'clogger'
+
 gem 'thin'
+#gem 'rainbows'
 
 group :development, :test do
   gem 'cucumber-rails'

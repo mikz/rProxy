@@ -1,7 +1,9 @@
 module RProxy
   class XMLProcessor::Action::Http < XMLProcessor::Action
     attr_reader :state
-    def initialize node, document, &block
+
+    def initialize proccessor, node, init = nil
+    
       super
     
       method = node.attribute("method").value
@@ -39,6 +41,9 @@ module RProxy
       self
     end
     def process!
+      Fiber.new {
+        
+      }.resume
       xmlprocessor = self.send(:processor)
       processor = lambda { |l|
         xmlprocessor.process! l.document, @nodes do

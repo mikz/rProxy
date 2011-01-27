@@ -9,6 +9,8 @@ module RProxy
       token_delim = "."
     end
     
+    def options; {}; end
+    
     def url_for_user user
       user.encrypt_url self.id, self.url
     end

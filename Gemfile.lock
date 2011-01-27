@@ -52,6 +52,8 @@ GEM
     awesome_print (0.3.1)
     bcrypt-ruby (2.1.4)
     builder (2.1.2)
+    clogger (0.8.0)
+      rack (> 0.9)
     columnize (0.3.2)
     cucumber (0.10.0)
       builder (>= 2.1.2)
@@ -230,6 +232,7 @@ PLATFORMS
 DEPENDENCIES
   async-rack!
   awesome_print
+  clogger
   cucumber-rails
   dm-active_model
   dm-aggregates (~> 1.0.0)
