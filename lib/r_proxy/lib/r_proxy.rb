@@ -1,5 +1,5 @@
 require "uri"
-require "sinatra/async"
+require "sinatra"
 require "ezcrypto"
 require "open3"
 require "typhoeus"
