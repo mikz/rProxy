@@ -6,7 +6,7 @@ module RProxy
     
     included do
       class_inheritable_accessor :token_delim
-      token_delim = "."
+      self.token_delim = "."
     end
     
     def options; {}; end
@@ -30,7 +30,7 @@ module RProxy
     end
     
     def activate
-      self.update(:active => true)
+      self.update_attribute :active, true
     end
     
     module ClassMethods
@@ -40,13 +40,13 @@ module RProxy
       end
 
       def with_class id
-        record = self.get id
+        record = self.find id
         klass = record.class_name.constantize
-        klass.get id
+        klass.find id
       end
 
       def install
-        self.create :class_name => self.to_s, :name => self.name, :url => self.url
+        self.create :class_name => self.to_s, :name => self.label, :url => self.url
       end
       
     end

@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.version = "0.0.1"
   s.add_dependency "nokogiri"
 #  s.add_dependency "async-rack"
-  s.add_dependency "async_sinatra"
+  #s.add_dependency "async_sinatra"
   #s.add_dependency "em-synchrony"
   #s.add_dependency "em-http-request"
   s.add_dependency "typhoeus"

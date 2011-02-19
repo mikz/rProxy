@@ -17,7 +17,7 @@ class Isis < Plugin::Base
   end
   
   class << self
-    def name
+    def label
       "ISIS to iCal"
     end
     def url

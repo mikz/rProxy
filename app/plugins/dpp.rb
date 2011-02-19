@@ -18,7 +18,7 @@ class Dpp < Plugin::Base
   end
   
   class << self
-    def name
+    def label
       "Dpp.cz IDOS"
     end
     def url

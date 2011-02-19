@@ -1,6 +1,7 @@
 module RProxy
   class Server < ::Sinatra::Base
-    register ::Sinatra::Async
+    #register ::Sinatra::Async
+    
     
     enable :show_exceptions
     
@@ -8,12 +9,6 @@ module RProxy
     helpers do
       include Rack::Utils
       alias_method :h, :escape_html
-
-      def aredirect url, status = 302
-        response.status = status
-        response.headers['Location'] = url
-        body ''
-      end
       
       def warden
         request.env['warden']
@@ -35,38 +30,27 @@ module RProxy
 
     end
     
-    def native_async_schedule(&b)
-  
-      #EM.next_tick(&b)
-      EM.next_tick(Proc.new { Fiber.new { b.call }.resume })
-    end
-    
-    aget '/delay/:n' do |n|
-      EM.add_timer(n.to_i) { body { "delayed for #{n} seconds" } }
-    end
-    
-    apost '/' do
+    post '/' do
       authenticate_user!
       req = Request.post(query)
       response = req.process request.url, params
       
+
       if req.redirected?
-        DEBUG {%w{req.location}}
-        aredirect req.location
+        redirect req.location
       else
         body response
       end
     end
    
-    aget '/' do
+    get '/' do
       #authenticate_user!
 
       req = Request.get(query)
       response = req.process request.url, params
-      
+            
       if req.redirected?
-        DEBUG {%w{req.location}}
-        aredirect req.location
+        redirect req.location
       else
         body response
       end

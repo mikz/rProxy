@@ -5,3 +5,7 @@
 #
 #   cities = City.create([{ :name => 'Chicago' }, { :name => 'Copenhagen' }])
 #   Mayor.create(:name => 'Daley', :city => cities.first)
+
+%w{plugins}.each do |file|
+  require File.join(Rails.root, "db", "seeds", file)
+end

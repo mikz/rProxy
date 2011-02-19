@@ -1,13 +1,19 @@
-RProxyRails::Application.routes.draw do
+RProxy::Application.routes.draw do
   devise_for :users
   
-  get "/proxies" => "proxies#index"
+  authenticate(:user) do
+    
+    resources :proxies, :only => [:index], :as => :plugins do
+      resources :settings, :variables
+    end
+    
+    mount RProxy::Server => "/p"
+  end
+  
+  
+  
   
   root :to => redirect("/proxies")
-#  match "/p/:query" => redirect("/p/?%{query}")
-  
-  mount RProxy::Server => "/p"
-  
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

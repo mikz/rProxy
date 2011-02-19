@@ -4,4 +4,4 @@
 require File.expand_path('../config/application', __FILE__)
 require 'rake'
 
-RProxyRails::Application.load_tasks
+RProxy::Application.load_tasks

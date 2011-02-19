@@ -6,7 +6,7 @@ require 'rails/all'
 # you've limited to :test, :development, or :production.
 Bundler.require(:default, Rails.env) if defined?(Bundler)
 
-module RProxyRails
+module RProxy
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
@@ -42,22 +42,8 @@ module RProxyRails
     
 #    config.middleware.insert_after ::Rack::Sendfile, ::RProxy::Server
 #    config.middleware.remove Rack::Runtime
-    
+    config.middleware.insert_after Rack::Runtime, Rack::FiberPool
+    config.threadsafe!
 #    config.cache_store = :memory_store
-  end
-end
-
-
-RProxyRails::Application::Bootstrap.tap do |bootstrap|
-  bootstrap.initializers.reject! {|i| i.name == :initialize_cache }
-  
-  bootstrap.initializer :initialize_cache, :after => :initialize_logger do
-    unless defined?(RAILS_CACHE)
-      silence_warnings { Object.const_set "RAILS_CACHE", ActiveSupport::Cache.lookup_store(config.cache_store) }
-
-      if RAILS_CACHE.respond_to?(:middleware)
-        config.middleware.insert_before(::Rack::Runtime, RAILS_CACHE.middleware)
-      end
-    end
   end
 end

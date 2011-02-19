@@ -6,9 +6,11 @@ module RProxy
       PUBLIC_KEY = OpenSSL::PKey::RSA.new(File.read("certs/public.pem"))
       PRIVATE_KEY = OpenSSL::PKey::RSA.new(File.read("certs/private.pem"))
       PROXY_KEY_LENGTH = 32
+      SALT_LENGTH = PROXY_KEY_LENGTH
       DELIMITER = "--"
 
-      before :save, :gen_proxy_key
+      before_save proc{ self.proxy_key = gen_salt(PROXY_KEY_LENGTH)}, :unless => :proxy_key?
+      before_save proc{ self.salt = gen_salt}, :unless => :salt?
       
     end
       
@@ -43,7 +45,7 @@ module RProxy
     end
     
     def get_config plugin, name
-      self.configs.first(:plugin.eql => plugin, :name.eql => name)
+      self.variables.for(plugin, name).first
     end
     # Encrypts data using instance key.
     def encrypt(data, key = self.proxy_key)
@@ -58,13 +60,13 @@ module RProxy
 
       url = [plugin_id.to_i, method[0,1], url, data_array.join(";") ].join(DELIMITER)
       
-      @key ||= ::EzCrypto::Key.with_password self.proxy_key, self.password_salt
+      @key ||= ::EzCrypto::Key.with_password self.proxy_key, self.salt
       url = "#{DELIMITER}#{self.id}#{DELIMITER}#{@key.encrypt(url)}"
       self.class.encrypt_url(url)
     end
 
     def decrypt_url(string)
-      @key ||= ::EzCrypto::Key.with_password proxy_key, self.password_salt
+      @key ||= ::EzCrypto::Key.with_password proxy_key, self.salt
       string = @key.decrypt string
       regex = /^(\d)--(P|G)--(.+?)--(?:(.+)?)$/i
       match = regex.match string
@@ -77,12 +79,12 @@ module RProxy
     end
 
 protected
-    def gen_proxy_key
-      return if proxy_key && proxy_key.length == PROXY_KEY_LENGTH
+    
+    def gen_salt(length = SALT_LENGTH)
       srand
       seed = "#{DELIMITER}#{rand(10000)}#{DELIMITER}#{Time.now}#{DELIMITER}"
       hash = Digest::SHA512.hexdigest(seed)
-      self.proxy_key = hash[rand(hash.length-PROXY_KEY_LENGTH),PROXY_KEY_LENGTH]
+      hash[rand(hash.length-PROXY_KEY_LENGTH),PROXY_KEY_LENGTH]
     end
   end
 end

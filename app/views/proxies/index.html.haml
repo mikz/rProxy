@@ -11,4 +11,8 @@
         %td
           = plugin.name
         %td
-          %a{:href => "/p/?" + plugin.url_for_user(current_user) }=plugin.url
+          = link_to(plugin.url, "/p/?" + plugin.url_for_user(current_user))
+          |
+          = link_to :settings, plugin_settings_path(plugin)
+          |
+          = link_to :variables, plugin_variables_path(plugin)

@@ -1,25 +1,10 @@
-class Plugin::Data
-
-  include DataMapper::Resource
-  
-  property :name , String, :key => true, :required => true
-  property :user_login, String, :key => true, :required => true
-  property :plugin_id, Integer, :key => true, :required => true
-  property :value, Text
-  
-  belongs_to :user, :model => "User"
-  belongs_to :plugin, :model => "Plugin::Base"
-  
-  property :id, Serial
-
-  def xml?
-    self[:name] =~ /xml|schema/i
+module Plugin::Data
+  extend ActiveSupport::Concern
+  included do
+    belongs_to :user, :class_name => "User"
+    belongs_to :plugin, :class_name => "Plugin::Base"
+    
+    validates :name, :presence => true, :uniqueness => {:scope => [:user_id, :plugin_id]}
+    validates :user, :plugin_id, :presence => true
   end
-  
-  
-  def self.for(plugin, name)
-    result = all(:plugin.eql => plugin)
-    result.first(:name.eql => name)
-  end
-  
 end

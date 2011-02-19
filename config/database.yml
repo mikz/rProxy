@@ -32,4 +32,4 @@ test:
 
 production:
   <<: *defaults
-  database: rProxy_rails
+  database: rProxy_rails_dev

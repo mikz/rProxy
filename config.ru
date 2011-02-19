@@ -3,4 +3,4 @@
 require ::File.expand_path('../config/environment',  __FILE__)
 
 #use Rack::FiberPool
-run RProxyRails::Application
+run RProxy::Application

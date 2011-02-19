@@ -1,3 +1,5 @@
+require "nokogiri"
+
 module RProxy
   module Worker
     

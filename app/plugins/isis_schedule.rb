@@ -78,7 +78,7 @@ class IsisSchedule < Plugin::Base
   end
   
   class << self
-    def name
+    def label
       "ISIS schedule to iCal"
     end
     def url
