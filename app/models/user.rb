@@ -14,6 +14,7 @@ class User < ActiveRecord::Base
  
   has_many :variables, :class_name => "Plugin::Variable"
   has_many :settings, :class_name => "Plugin::Setting"
+  has_many :shortcuts
   
   include RProxy::User
   

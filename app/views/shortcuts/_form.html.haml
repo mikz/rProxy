@@ -1,0 +1,7 @@
+= semantic_form_for @shortcut, :url => plugin_shortcuts_path do |form|
+  = form.semantic_errors
+  = form.inputs do
+    = form.input :name
+    = form.input :query
+    = form.input :note
+  = form.buttons

@@ -1,15 +1,17 @@
 RProxy::Application.routes.draw do
+  
+
   devise_for :users
   
   authenticate(:user) do
     
     resources :proxies, :only => [:index], :as => :plugins do
-      resources :settings, :variables
+      resources :settings, :variables, :shortcuts
     end
-    
     
   end
   
+  get '/s/:id', :as => :shortcut, :to => "shortcuts#show"
   
   mount RProxy::Server => "/p"
   

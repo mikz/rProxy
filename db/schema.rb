@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110219181041) do
+ActiveRecord::Schema.define(:version => 20110219215721) do
 
   create_table "plugin_settings", :force => true do |t|
     t.string   "name",       :null => false
@@ -48,6 +48,18 @@ ActiveRecord::Schema.define(:version => 20110219181041) do
 
   add_index "sessions", ["session_id"], :name => "index_sessions_on_session_id"
   add_index "sessions", ["updated_at"], :name => "index_sessions_on_updated_at"
+
+  create_table "shortcuts", :force => true do |t|
+    t.text     "query",      :null => false
+    t.integer  "user_id",    :null => false
+    t.integer  "plugin_id",  :null => false
+    t.string   "name",       :null => false
+    t.text     "note"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "shortcuts", ["query"], :name => "index_shortcuts_on_query", :unique => true
 
   create_table "users", :force => true do |t|
     t.string   "email",                                                  :null => false
