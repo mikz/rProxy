@@ -7,11 +7,11 @@ RProxy::Application.routes.draw do
       resources :settings, :variables
     end
     
-    mount RProxy::Server => "/p"
+    
   end
   
   
-  
+  mount RProxy::Server => "/p"
   
   root :to => redirect("/proxies")
   # The priority is based upon order of creation:

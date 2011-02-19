@@ -2,7 +2,7 @@
 class IsisSchedule < Plugin::Base
   FORMAT = :html
   
-  FIRST_DAY = Date.civil(2010, 9, 20)
+  FIRST_DAY = Date.civil(2011, 2, 14)
   CELL_WITH = 80
   WEEKS = 13
   
@@ -83,6 +83,9 @@ class IsisSchedule < Plugin::Base
     end
     def url
       "https://isis.vse.cz/katalog/rozvrhy_view.pl?zobraz=1;format=html;rozvrh_student=53816;lang=cz"
+    end
+    def content_type
+      "text/calendar"
     end
   end
 end

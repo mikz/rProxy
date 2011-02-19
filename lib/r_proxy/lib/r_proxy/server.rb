@@ -27,19 +27,26 @@ module RProxy
       def query
         request.env['QUERY_STRING']
       end
+      
+      def content_type(plugin)
+        if plugin.respond_to? :content_type
+          response['Content-Type'] = plugin.content_type
+        end
+      end
 
     end
     
     post '/' do
       authenticate_user!
       req = Request.post(query)
-      response = req.process request.url, params
+      resp = req.process request.url, params
       
 
       if req.redirected?
         redirect req.location
       else
-        body response
+        content_type(req.plugin)
+        body resp
       end
     end
    
@@ -47,12 +54,13 @@ module RProxy
       #authenticate_user!
 
       req = Request.get(query)
-      response = req.process request.url, params
+      resp = req.process request.url, params
             
       if req.redirected?
         redirect req.location
       else
-        body response
+        content_type(req.plugin)
+        body resp
       end
     end
   end

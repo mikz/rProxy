@@ -13,6 +13,7 @@ PATH
     r_proxy (0.0.1)
       ezcrypto
       nokogiri
+      sinatra
       typhoeus
 
 GEM
@@ -119,6 +120,7 @@ GEM
       thor (~> 0.14.4)
     rake (0.8.7)
     responders (0.6.2)
+    ri_cal (0.8.8)
     rspec (2.5.0)
       rspec-core (~> 2.5.0)
       rspec-expectations (~> 2.5.0)
@@ -143,12 +145,16 @@ GEM
     ruby_core_source (0.1.4)
       archive-tar-minitar (>= 0.5.2)
     shoulda-matchers (1.0.0.beta1)
+    sinatra (1.1.2)
+      rack (~> 1.1)
+      tilt (~> 1.2)
     term-ansicolor (1.0.5)
     thin (1.2.7)
       daemons (>= 1.0.9)
       eventmachine (>= 0.12.6)
       rack (>= 1.0.0)
     thor (0.14.6)
+    tilt (1.2.2)
     treetop (1.4.9)
       polyglot (>= 0.3.1)
     typhoeus (0.2.2)
@@ -180,6 +186,7 @@ DEPENDENCIES
   r_proxy!
   rack-fiber_pool
   rails (~> 3.0.0)
+  ri_cal
   rspec
   rspec-rails
   ruby-debug19

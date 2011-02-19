@@ -18,6 +18,9 @@ gem 'r_proxy', :path => "lib/r_proxy"
 gem 'thin'
 #gem 'rainbows'
 
+#plugins
+gem 'ri_cal'
+
 group :development, :test do
   gem 'cucumber-rails'
   gem 'webrat'

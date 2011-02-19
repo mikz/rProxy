@@ -14,6 +14,7 @@ module RProxy
     HYDRA = Typhoeus::Hydra.new HYDRA_OPTIONS
     
     attr_reader :location
+    attr_reader :plugin
     
     def initialize query, method
       super
