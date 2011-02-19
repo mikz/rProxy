@@ -29,6 +29,7 @@ module RProxy
       end
       
       def content_type(plugin)
+        DEBUG {%w{plugin.respond_to?(:content_type) plugin}}
         if plugin.respond_to? :content_type
           response['Content-Type'] = plugin.content_type
         end
@@ -55,7 +56,7 @@ module RProxy
 
       req = Request.get(query)
       resp = req.process request.url, params
-            
+        
       if req.redirected?
         redirect req.location
       else

@@ -18,6 +18,11 @@ class IsisSchedule < Plugin::Base
     File.read(File.join(File.dirname(__FILE__), "isis_schedule", "schema.rng"))
   end
   
+  def content_type
+    "text/calendar; charset=utf-8"
+  end
+  
+  
   def parse_table(element)
     rows = element.node.css("tr:not(.zahlavi)").to_a.select {|node|
       !node.matches?("tr.rozvrh-sep") && !node.matches?("tr[height]")
@@ -83,9 +88,6 @@ class IsisSchedule < Plugin::Base
     end
     def url
       "https://isis.vse.cz/katalog/rozvrhy_view.pl?zobraz=1;format=html;rozvrh_student=53816;lang=cz"
-    end
-    def content_type
-      "text/calendar"
     end
   end
 end
