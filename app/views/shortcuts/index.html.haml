@@ -1,0 +1,20 @@
+
+%table
+  %thead
+    %tr
+      %th Plugin
+      %th Name
+      %th Note
+      %td= link_to :new, new_plugin_shortcut_path
+  %tbody
+    - @shortcuts.each do |s|
+      %tr
+        %td= s.name
+        %td= s.plugin
+        %td= s.note
+        %td
+          = link_to shortcut_url(s), shortcut_path(s)
+          |
+          = link_to :edit, edit_plugin_shortcut_path(s.plugin_id, s)
+          |
+          = button_to :destroy, plugin_shortcut_path(s.plugin_id, s), :method => :delete
