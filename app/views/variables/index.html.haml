@@ -1,0 +1,13 @@
+
+%table
+  %thead
+    %tr
+      %th Key
+      %th Value
+      %td= link_to :new, new_plugin_variable_path
+  %tbody
+    - @variables.each do |v|
+      %tr
+        %td= v.name
+        %td= v.value
+        %td= button_to :destroy, plugin_variable_path(v.plugin_id, v), :method => :delete

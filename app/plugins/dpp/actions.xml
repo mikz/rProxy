@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="schema.rng" type="xml"?>
+<actions
+    xmlns="urn:x-rProxy:ns:manipulation"
+    xmlns:output="urn:x-rProxy:ns:output">
+    <create from="CDATA" format="xhtml">
+        <![CDATA[
+            <link media="screen" type="text/css" rel="stylesheet" href="#{config.stylesheet}" />
+        ]]>
+        <insert>
+            <before css="html head base"/>
+        </insert>
+    </create>
+
+</actions>

@@ -1,0 +1,20 @@
+%table
+  %thead
+    %tr
+      %td
+        Jméno
+      %td
+        URL
+  %tbody
+    - @plugins.each do |plugin|
+      %tr
+        %td
+          = plugin.name
+        %td
+          = link_to(plugin.url, "/p/?" + plugin.url_for_user(current_user))
+          |
+          = link_to :shortcuts, plugin_shortcuts_path(plugin)
+          |
+          = link_to :settings, plugin_settings_path(plugin)
+          |
+          = link_to :variables, plugin_variables_path(plugin)

@@ -1,0 +1,3 @@
+[submodule "lib/async-rack"]
+	path = lib/async-rack
+	url = git@github.com:mikz/async-rack.git
